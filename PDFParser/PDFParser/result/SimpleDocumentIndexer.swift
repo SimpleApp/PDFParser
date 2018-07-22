@@ -12,7 +12,6 @@ public class SimpleDocumentIndexer {
 
     public class PageIndex {
         public private(set) var textBlocks = [TextBlock]()
-        public internal(set) var layout: PageLayout = UnknownLayout()
         public private(set) var lines = [CGFloat:LineTextBlock]()
 
         init(){}
