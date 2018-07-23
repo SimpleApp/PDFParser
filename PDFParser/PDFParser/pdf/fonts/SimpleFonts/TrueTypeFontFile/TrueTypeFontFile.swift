@@ -22,7 +22,6 @@ struct TrueTypeFontFile {
         case unsupportedFormat(feature: String)
     }
 
-    private(set) var names: [Int:String]
 
     //FONT table
     private var scalarType = UInt32(0)
@@ -43,7 +42,6 @@ struct TrueTypeFontFile {
 
     init(data: CFData) throws {
         let reader = TrueTypeFontFileReader(data as Data)
-        names = reader.names
         try readOffsetTables(reader)
         try readHeadTable(reader)
         try readMAXPTable(reader)
@@ -393,6 +391,9 @@ struct TrueTypeFontFile {
 
 
 extension TrueTypeFontFile: PDFFontFile {
+    func glyphName(forChar originalCharCode: PDFCharacterCode) -> String? {
+        return nil
+    }
     func glyphWidthInThousandthOfEM(forChar char:unichar, originalCharCode oChar: PDFCharacterCode) -> CGFloat? {
         guard
             let headTable = self.headTable,

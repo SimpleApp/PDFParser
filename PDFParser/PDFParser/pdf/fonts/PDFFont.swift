@@ -98,8 +98,8 @@ public class PDFFont {
             originalCharCodes.append(charCode)
             if var value = toUnicode.unicodeCharacter(forPDFCharacter: charCode) {
                 str.append(String(utf16CodeUnits: &value, count: 1))
-            } else if let charName = descriptor.fontFile?.names[Int(charCode)],
-                var value = PDFAGL.charactersByName[charName] {
+            } else if let glyphName = descriptor.fontFile?.glyphName(forChar:charCode),
+                var value = PDFAGL.unicodeForGlyphName[glyphName] {
                 str.append(String(utf16CodeUnits: &value, count: 1) )
             } else {
                 str.append(String(bytes: [charCode], encoding: encoding.toNative()) ?? "\u{FFFD}")

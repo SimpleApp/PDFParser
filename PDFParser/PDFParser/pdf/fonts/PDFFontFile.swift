@@ -10,7 +10,7 @@ import CoreGraphics
 
 
 protocol PDFFontFile {
-    var names: [Int:String] { get }
+    func glyphName(forChar originalCharCode:PDFCharacterCode) -> String?
     func glyphWidthInThousandthOfEM(forChar char:unichar, originalCharCode oChar: PDFCharacterCode) -> CGFloat?
 }
 

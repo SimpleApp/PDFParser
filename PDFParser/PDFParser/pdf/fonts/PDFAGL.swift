@@ -3,7 +3,7 @@ import CoreGraphics
 
 //Adobe Glyph List  https://github.com/adobe-type-tools/agl-aglfn/blob/master/glyphlist.txt
 struct PDFAGL {
-	static let charactersByName: [String: unichar] = [
+	static let unicodeForGlyphName: [String: unichar] = [
 "/A":0x0041,
 "/AE":0x00C6,
 "/AEacute":0x01FC,

@@ -14,7 +14,6 @@ class TrueTypeFontFileReader {
 
 
     var pos:Int = 0
-    var names = [Int:String]()
     var glyphWidths = [unichar: CGFloat]()
     var data: Data
     var currentSystemIsLittleEndian: Bool

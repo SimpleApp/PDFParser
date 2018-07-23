@@ -8,7 +8,7 @@
 import Foundation
 import CoreGraphics
 
-struct PDFType1FontFile: PDFFontFile {
+struct PDFType1FontFile {
 
     static let headerLength: Int = 6
     var data: Data {
@@ -20,7 +20,6 @@ struct PDFType1FontFile: PDFFontFile {
     private(set) var text: String
     private(set) var asciiTextLength: Int
     private(set) var names: [Int:String]
-    private(set) var cmap: CMap? = nil // no CMAP in Type1 Font file (?)
     init(data: CFData, format: CGPDFDataFormat) {
         self.data = data as Data
         (self.asciiTextLength, self.text) = PDFType1FontFile.dataToText(self.data)
@@ -77,5 +76,11 @@ struct PDFType1FontFile: PDFFontFile {
             }
         }
         return (asciiTextLength, text)
+    }
+}
+
+extension PDFType1FontFile: PDFFontFile {
+    func glyphName(forChar originalCharCode:PDFCharacterCode) -> String? {
+        return names[Int(originalCharCode)]
     }
 }
