@@ -67,7 +67,7 @@ public class PDFRenderingState {
         }
     }
 
-    func sizeInDeviceSpace(ofText str:String, originalCharCodes oCharCodes:[Int], horizontal: Bool = true) -> CGSize {
+    func sizeInDeviceSpace(ofText str:String, originalCharCodes oCharCodes:[PDFCharacterCode], horizontal: Bool = true) -> CGSize {
         assert(horizontal, "vertical writing not supported")
         let trm = textMatrix.concatenating(ctm)
         var strSize = CGSize(width: 0, height: fontSize)
@@ -95,7 +95,7 @@ public class PDFRenderingState {
                                                        y: trm.d))
     }
 
-    func deviceSpaceFrameForText(_ str:String, originalCharCodes oCharCodes:[Int],  horizontal: Bool = true) -> CGRect {
+    func deviceSpaceFrameForText(_ str:String, originalCharCodes oCharCodes:[PDFCharacterCode],  horizontal: Bool = true) -> CGRect {
         assert(horizontal, "vertical writing not supported")
         let trm = textMatrix.concatenating(ctm)
         let strSize = sizeInDeviceSpace(ofText: str, originalCharCodes:oCharCodes)

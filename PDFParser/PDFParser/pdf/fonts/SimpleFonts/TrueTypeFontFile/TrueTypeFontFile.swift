@@ -393,14 +393,14 @@ struct TrueTypeFontFile {
 
 
 extension TrueTypeFontFile: PDFFontFile {
-    func glyphWidthInThousandthOfEM(forChar char:unichar, originalCharCode oChar: Int) -> CGFloat? {
+    func glyphWidthInThousandthOfEM(forChar char:unichar, originalCharCode oChar: PDFCharacterCode) -> CGFloat? {
         guard
             let headTable = self.headTable,
             let cmapTable = self.cmapTable,
             let subtableIndex = cmapTable.preferedSubtable,
             let hmtx = self.hmtxTable else { return nil }
 
-        let glId = glyphId(forChar: oChar, in: cmapTable.subtables[subtableIndex.index]) ?? 0
+        let glId = glyphId(forChar: Int(oChar), in: cmapTable.subtables[subtableIndex.index]) ?? 0
 
         //Logging. TODO: Debug only.
         /*

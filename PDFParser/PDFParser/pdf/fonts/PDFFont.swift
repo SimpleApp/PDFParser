@@ -47,7 +47,7 @@ public class PDFFont {
 
    
     var toUnicode = CMap()
-    var widths = [unichar:CGFloat]()
+    var widths = [PDFCharacterCode:CGFloat]() // width of char using original character encoding.
     var descriptor = PDFFontDescriptor.empty
     var ligatures = [String:unichar]()
     let minY: CGFloat = 0
@@ -55,7 +55,7 @@ public class PDFFont {
     var widthsRange = NSMakeRange(0, 0)
     var baseFontName = ""
     var encoding = Encoding.unknown
-    var spaceCharEncoded: Int?
+    var spaceCharEncoded: PDFCharacterCode?
 
     init() {
     }
@@ -83,7 +83,7 @@ public class PDFFont {
         }
     }
 
-    func string(from pdfString:CGPDFStringRef) -> (str:String, originalCharCodes:[Int])  {
+    func string(from pdfString:CGPDFStringRef) -> (str:String, originalCharCodes:[PDFCharacterCode])  {
 
         guard let characterCodes = CGPDFStringGetBytePtr(pdfString) else {
             return ("", [])
@@ -92,10 +92,10 @@ public class PDFFont {
         let characterCodeCount = CGPDFStringGetLength(pdfString)
 
         var str: String = ""
-        var originalCharCodes = [Int]()
+        var originalCharCodes = [PDFCharacterCode]()
         for i in 0 ..< characterCodeCount {
             let charCode: PDFCharacterCode = characterCodes[i]
-            originalCharCodes.append(Int(charCode))
+            originalCharCodes.append(charCode)
             if var value = toUnicode.unicodeCharacter(forPDFCharacter: charCode) {
                 str.append(String(utf16CodeUnits: &value, count: 1))
             } else if let charName = descriptor.fontFile?.names[Int(charCode)],
@@ -139,7 +139,7 @@ public class PDFFont {
             encoding = .unknown
         }
 
-        spaceCharEncoded = Int(" ".cString(using: encoding.toNative())?.first ?? 0)
+        spaceCharEncoded = PDFCharacterCode(" ".cString(using: encoding.toNative())?.first ?? 0)
     }
 
     func setWidths(fontDictionary: CGPDFDictionaryRef) {
@@ -163,8 +163,8 @@ public class PDFFont {
     }
 
 
-    func displacementInGlyphSpace(forChar char: unichar, originalCharCode oChar:Int) -> CGPoint {
-        return CGPoint(x: widths[char] ??
+    func displacementInGlyphSpace(forChar char: unichar, originalCharCode oChar:PDFCharacterCode) -> CGPoint {
+        return CGPoint(x: widths[oChar] ??
             (descriptor.missingWidth > 0 ? descriptor.missingWidth : descriptor.fontFile?.glyphWidthInThousandthOfEM(forChar:char, originalCharCode:oChar)
                 ?? 0)  , y: 0)
     }

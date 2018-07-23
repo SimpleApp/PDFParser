@@ -9,7 +9,7 @@ import UIKit
 
 public struct TextBlock {
     var chars: String
-    var originalCharCodes:[Int]
+    var originalCharCodes:[PDFCharacterCode]
     var renderingState: PDFRenderingState
     var frame: CGRect
 }

@@ -29,7 +29,7 @@ class PDFSimpleFont : PDFFont {
         for i in 0 ..< count {
             var width: CGPDFReal = 0.0
             guard CGPDFArrayGetNumber(array, i, &width) else { continue }
-                widths[unichar(firstChar+i)] = width
+                widths[PDFCharacterCode(firstChar+i)] = width
         }
     }
 }

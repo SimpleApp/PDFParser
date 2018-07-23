@@ -54,7 +54,7 @@ struct PDFType1FontFile: PDFFontFile {
         }
     }
 
-    func glyphWidthInThousandthOfEM(forChar char:unichar, originalCharCode oChar: Int) -> CGFloat? {
+    func glyphWidthInThousandthOfEM(forChar char:unichar, originalCharCode oChar: PDFCharacterCode) -> CGFloat? {
         return nil
     }
 
