@@ -235,8 +235,8 @@ public class Parser {
             guard
                 CGPDFObjectGetType(object) == CGPDFObjectType.dictionary,
                 CGPDFObjectGetValue(object, CGPDFObjectType.dictionary, &dict),
-                let font = Parser.getFont(dict) else { return }
-            let name = String(cString: key)
+                let font = Parser.getFont(dict),
+                let name = String.decodePDFInt8CString(key) else { return }
             collection.fonts[name] = font
 
         }, resPtr)
@@ -250,16 +250,13 @@ public class Parser {
         var dicTypePtr : UnsafePointer<Int8>? = nil
             CGPDFDictionaryGetName(dictionary, "Type", &dicTypePtr)
 
-        guard let dicTypePtrNonNull = dicTypePtr else { return nil }
-
-        let dicType = String(cString: dicTypePtrNonNull)
-        guard dicType == "Font" else { return nil}
+        let dicType = String.decodePDFInt8CString(dicTypePtr)
+        guard dicType == "Font" else { return nil }
 
         var dicSubtypePtr : UnsafePointer<Int8>? = nil
         CGPDFDictionaryGetName(dictionary, "Subtype", &dicSubtypePtr)
         if let dicSubtype = dicSubtypePtr {
-            print("getFont \(String(cString: dicSubtype))\n")
-            let subtype = String(cString: dicSubtype)
+            let subtype = String.decodePDFInt8CString(dicSubtype)
             switch subtype {
             case "Type0":
                 return PDFType0Font(pdfDictionary: dictionary)
@@ -387,11 +384,12 @@ public class Parser {
         let fontSize: CGPDFReal = popNumber(scanner)
 
         guard
-            let pdfFontName = popName(scanner) else {
+            let pdfFontName = popName(scanner),
+            let fontName = String.decodePDFInt8CString(pdfFontName) else {
             parser.log("Invalid font name in font with size \(fontSize) \n")
             return
         }
-        let fontName = String(cString: pdfFontName)
+
         let renderingState = parser.renderingState
         guard let font = parser.fontCollection.fonts[fontName] else {
             parser.log("unknown font \(fontName) \n")

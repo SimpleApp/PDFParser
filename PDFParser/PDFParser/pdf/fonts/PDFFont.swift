@@ -76,11 +76,11 @@ public class PDFFont {
         setToUnicode(fontDictionary: pdfDictionary)
 
         // Set the font's base font
-        var fontName : UnsafePointer<Int8>? = nil
-        if  CGPDFDictionaryGetName(pdfDictionary, "BaseFont", &fontName),
-            let fontNameNonNill = fontName
+        var pdfFontName : UnsafePointer<Int8>? = nil
+        if  CGPDFDictionaryGetName(pdfDictionary, "BaseFont", &pdfFontName),
+            let fontName = String.decodePDFInt8CString(pdfFontName)
         {
-            baseFontName = String(cString:fontNameNonNill)
+            baseFontName = fontName
         }
     }
 
@@ -113,20 +113,20 @@ public class PDFFont {
 
     func setEncoding(fontDictionary: CGPDFDictionaryRef?) {
         guard let fontDictionary = fontDictionary else { return }
-        var encodingName: UnsafePointer<Int8>? = nil
-        if !CGPDFDictionaryGetName(fontDictionary, "Encoding", &encodingName)
+        var pdfEncodingName: UnsafePointer<Int8>? = nil
+        if !CGPDFDictionaryGetName(fontDictionary, "Encoding", &pdfEncodingName)
         {
             var encodingDict: CGPDFDictionaryRef? = nil
 
             if CGPDFDictionaryGetDictionary(fontDictionary, "Encoding", &encodingDict),
                 let encodingDictNonNil = encodingDict {
-                CGPDFDictionaryGetName(encodingDictNonNil,"BaseEncoding", &encodingName)
+                CGPDFDictionaryGetName(encodingDictNonNil,"BaseEncoding", &pdfEncodingName)
             }
             // TODO: Also get differences from font encoding dictionary
         }
 
-        if let encodingNameNonNil = encodingName {
-            setEncoding(name:String(cString:encodingNameNonNil))
+        if let encodingName = String.decodePDFInt8CString(pdfEncodingName) {
+            setEncoding(name:encodingName)
         }
     }
 

@@ -33,7 +33,7 @@ struct PDFFontDescriptor {
         guard
             CGPDFDictionaryGetName(dict, "Type", &fontType),
             let fontTypeNonNil = fontType,
-            String(cString: fontTypeNonNil) == "FontDescriptor" else { return }
+            String.decodePDFInt8CString(fontTypeNonNil) == "FontDescriptor" else { return }
 
         CGPDFDictionaryGetNumber(dict, "Ascent",        &self.ascent)
         CGPDFDictionaryGetNumber(dict, "Descent",       &self.descent)
@@ -52,10 +52,10 @@ struct PDFFontDescriptor {
             self.flags = PDFFont.Flag(rawValue: flagsValue)
         }
 
-        var fontNameString: UnsafePointer<Int8>? = nil
-        if  CGPDFDictionaryGetName(dict, "FontName", &fontNameString),
-            let fontNameStringNonNil = fontNameString {
-            self.fontName = String(cString:fontNameStringNonNil)
+        var pdfFontName: UnsafePointer<Int8>? = nil
+        if  CGPDFDictionaryGetName(dict, "FontName", &pdfFontName),
+            let fontName = String.decodePDFInt8CString(pdfFontName) {
+            self.fontName = fontName
         }
 
         var bboxValue: CGPDFArrayRef? = nil
