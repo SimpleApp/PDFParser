@@ -11,6 +11,9 @@ public class PDFRenderingState {
     var lineMatrix: CGAffineTransform = .identity
     var textMatrix: CGAffineTransform = .identity
     var ctm: CGAffineTransform = .identity
+    var deviceSpaceMatrix : CGAffineTransform {
+        return textMatrix.concatenating(ctm)
+    }
     var leading: CGFloat = 0
     var wordSpacing: CGFloat = 0
     var characterSpacing: CGFloat = 0
@@ -36,9 +39,11 @@ public class PDFRenderingState {
         fontSize = state.fontSize
     }
 
-    //Note : translation is expressed in unscaled text space units. That is, value will NOT be multipled by fontSize later.
+    //Note : translation is expressed in unscaled text space units. That is, value will NOT be multipled by fontSize later
     func translateTextMatrix(by delta: CGSize) {
-        textMatrix = textMatrix.translatedBy(x: delta.width, y: delta.height)
+        textMatrix.tx += delta.width
+        textMatrix.ty += delta.height
+        //Note : do not use textMatrix.translatedBy because it would apply scaling to the translation.
     }
 
     func convertHorizontalGlyphSpaceToTextSpace(_ value: CGFloat) -> CGFloat {
@@ -67,9 +72,8 @@ public class PDFRenderingState {
         }
     }
 
-    func sizeInDeviceSpace(ofText str:String, originalCharCodes oCharCodes:[PDFCharacterCode], horizontal: Bool = true) -> CGSize {
+    func sizeInDeviceSpace(ofText str:String, originalCharCodes oCharCodes:[PDFCharacterCode], horizontal: Bool = true) -> (deviceSpaceSize:CGSize, textMatrixTranslation:CGSize) {
         assert(horizontal, "vertical writing not supported")
-        let trm = textMatrix.concatenating(ctm)
         var strSize = CGSize(width: 0, height: fontSize)
         for (i,char) in str.utf16.enumerated() {
 
@@ -91,17 +95,19 @@ public class PDFRenderingState {
         /*if str.contains("n s’") {
             print("check")
         }*/
-        return strSize.applying(CGAffineTransform.init(scaleX: horizontalScaling * trm.a,
-                                                       y: trm.d))
+        let textSpaceScaling = CGAffineTransform.init(scaleX: horizontalScaling * textMatrix.a, y: textMatrix.d)
+        let textMatrixTranslation = strSize.applying(textSpaceScaling)
+        let deviceSpaceSize = textMatrixTranslation.applying(ctm)
+        return (deviceSpaceSize, textMatrixTranslation)
     }
 
-    func deviceSpaceFrameForText(_ str:String, originalCharCodes oCharCodes:[PDFCharacterCode],  horizontal: Bool = true) -> CGRect {
+    func deviceSpaceFrameForText(_ str:String, originalCharCodes oCharCodes:[PDFCharacterCode],  horizontal: Bool = true) -> (deviceSpaceFrame:CGRect, textMatrixTranslation: CGSize) {
         assert(horizontal, "vertical writing not supported")
-        let trm = textMatrix.concatenating(ctm)
-        let strSize = sizeInDeviceSpace(ofText: str, originalCharCodes:oCharCodes)
+        let trm = deviceSpaceMatrix
+        let (deviceSpaceSize, textMatrixTranslation) = sizeInDeviceSpace(ofText: str, originalCharCodes:oCharCodes)
         let res = CGRect(x: trm.tx, y: trm.ty,
-                      width: strSize.width,
-                      height: strSize.height)
-        return res
+                      width: deviceSpaceSize.width,
+                      height: deviceSpaceSize.height)
+        return (res, textMatrixTranslation)
     }
 }

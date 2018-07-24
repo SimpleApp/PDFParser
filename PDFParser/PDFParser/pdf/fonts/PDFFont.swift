@@ -8,6 +8,7 @@
 import Foundation
 import CoreGraphics
 
+//TODO: understand a little better how mutli-bytes characters are handled, especially when comunicating with the fontfile (as some truetype cmap tables are supposed to handle 2-bytes character codes..)
 typealias PDFCharacterCode = UInt8
 
 public class PDFFont {

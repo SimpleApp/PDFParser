@@ -87,7 +87,7 @@ public class SimpleDocumentIndexer {
             if
                 canCoalesce(previousBlockFont: previous.renderingState.font, with: next.renderingState.font) &&
                     previous.chars.canFormWord(with: next.chars) &&
-                    previous.renderingState.fontSize == next.renderingState.fontSize &&
+                    previous.renderingState.deviceSpaceFontSize == next.renderingState.deviceSpaceFontSize &&
                     blockSpacing < spaceWidth {
                 print ("coalesce \(previous.chars) [\(previous.frame)] with \(next.chars) [\(next.frame)]\n")
 
@@ -104,7 +104,7 @@ public class SimpleDocumentIndexer {
 
 
         static func widthOfSpaceInDeviceSpace(renderingState: PDFRenderingState ) -> CGFloat {
-            return renderingState.sizeInDeviceSpace(ofText: " ", originalCharCodes: [renderingState.font.spaceCharEncoded ?? 0] ).width
+            return renderingState.sizeInDeviceSpace(ofText: " ", originalCharCodes: [renderingState.font.spaceCharEncoded ?? 0] ).deviceSpaceSize.width
         }
 
 
@@ -168,5 +168,11 @@ extension SimpleDocumentIndexer : DocumentIndexer {
                                  width: textBlock.frame.width,
                                  height: textBlock.frame.height)
         currentPageIndex.push(revertedTextBlock)
+    }
+}
+
+extension PDFRenderingState {
+    var deviceSpaceFontSize : CGFloat {
+        return deviceSpaceMatrix.a * fontSize
     }
 }

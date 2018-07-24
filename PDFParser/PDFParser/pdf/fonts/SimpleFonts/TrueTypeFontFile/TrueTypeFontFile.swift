@@ -71,8 +71,13 @@ struct TrueTypeFontFile {
                 table.checksum != calculateTableChecksum(r,
                                                          offset: table.offset,
                                                          length: table.length) {
-                throw FontFileError.invalidTableChecksum(tag: tag)
+                if table.checksum == 0 {
+                    //TODO: use correct logging mechanism.
+                    print("table \(tag) has no checksum. ignore.")
+                } else {
+                    throw FontFileError.invalidTableChecksum(tag: tag)
                 }
+            }
             tableOffsets[tag] = table
         }
     }

@@ -27,12 +27,14 @@ public class Parser {
         return res
     }
     let indexer: DocumentIndexer
+    let log: Bool
     var fontCollection = PDFFontCollection()
 
-    public init(documentURL: URL, delegate: ParserDelegate, indexer: DocumentIndexer) throws {
+    public init(documentURL: URL, delegate: ParserDelegate, indexer: DocumentIndexer, log: Bool = false) throws {
         self.documentURL = documentURL
         self.delegate = delegate
         self.indexer = indexer
+        self.log = log
         renderingStateStack.append(PDFRenderingState())
     }
 
@@ -89,6 +91,11 @@ public class Parser {
         return operatorTable
     }
 
+    //MARK: - Logging {
+    func log(_ str: String) {
+        guard self.log else { return }
+        print(str)
+    }
 
     //MARK: - Parsing
     public func parse() {
@@ -280,16 +287,16 @@ public class Parser {
 
         let renderingState = parser.renderingState
         let (str, originalCharCodes) = renderingState.font.string(from: pdfString)
+        parser.log( "didScanString \(str)")
 
-        let frame = renderingState.deviceSpaceFrameForText(str,originalCharCodes: originalCharCodes)
+        let (deviceSpaceFrame, userSpaceSize) = renderingState.deviceSpaceFrameForText(str,originalCharCodes: originalCharCodes)
 
         parser.indexer.didScanTextBlock(
             TextBlock( chars: str,
                        originalCharCodes: originalCharCodes,
                        renderingState: renderingState,
-                       frame:frame))
-        //print("didScanString \(str)\n")
-        renderingState.translateTextMatrix(by: CGSize(width: frame.width, height:0))
+                       frame:deviceSpaceFrame))
+        renderingState.translateTextMatrix(by: CGSize(width: userSpaceSize.width, height:0))
     }
 
     static func didScanNewLine(scanner: CGPDFScannerRef, parser: Parser, persistLeading: Bool) {
@@ -302,8 +309,9 @@ public class Parser {
 
     static func didScanPositionAdjustment(value: CGFloat, parser: Parser) {
         guard let renderingState = parser.renderingStateStack.last else { return }
+        parser.log("didScanPositionAdjustment : \(value)")
         renderingState.translateTextMatrix(by: CGSize(
-            width: renderingState.convertHorizontalGlyphSpaceToTextSpace(-value) * renderingState.fontSize,
+            width: renderingState.convertHorizontalGlyphSpaceToTextSpace(-value) * renderingState.fontSize * renderingState.textMatrix.a,
             height:0))
     }
 
@@ -344,6 +352,7 @@ public class Parser {
         }
     }
     static func setTextMatrix( scanner : CGPDFScannerRef, parser : Parser) {
+        parser.log( "didScan Tm")
         parser.renderingState.setTextMatrix(popTransform(scanner), replaceLineMatrix:true)
     }
     static func newLineSetLeading( scanner : CGPDFScannerRef, parser : Parser) {
@@ -379,13 +388,13 @@ public class Parser {
 
         guard
             let pdfFontName = popName(scanner) else {
-            print("Invalid font name in font with size \(fontSize) \n")
+            parser.log("Invalid font name in font with size \(fontSize) \n")
             return
         }
         let fontName = String(cString: pdfFontName)
         let renderingState = parser.renderingState
         guard let font = parser.fontCollection.fonts[fontName] else {
-            print("unknown font \(fontName) \n")
+            parser.log("unknown font \(fontName) \n")
             return
         }
         renderingState.font = font
@@ -395,6 +404,7 @@ public class Parser {
     static func applyTransformation( scanner : CGPDFScannerRef, parser : Parser){
         let renderingState = parser.renderingState
         renderingState.ctm = renderingState.ctm.concatenating(popTransform(scanner))
+        parser.log ("ctm => \(renderingState.ctm)")
     }
     
     static func pushRenderingState( scanner : CGPDFScannerRef, parser : Parser){
@@ -402,6 +412,7 @@ public class Parser {
 
     }
     static func popRenderingState( scanner : CGPDFScannerRef,parser : Parser){
+        parser.log("popRenderingState")
         _ = parser.renderingStateStack.popLast()
     }
     static func newParagraph( scanner : CGPDFScannerRef, parser : Parser){
