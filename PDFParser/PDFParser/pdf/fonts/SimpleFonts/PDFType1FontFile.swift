@@ -83,4 +83,7 @@ extension PDFType1FontFile: PDFFontFile {
     func glyphName(forChar originalCharCode:PDFCharacterCode) -> String? {
         return names[Int(originalCharCode)]
     }
+    func fontInfos() -> PDFFontFileInfos? {
+        return nil
+    }
 }

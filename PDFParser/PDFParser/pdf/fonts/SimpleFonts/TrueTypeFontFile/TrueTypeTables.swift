@@ -62,6 +62,47 @@ struct TTHMTXTable {
     var leftSideBearings = [Int16]()
 }
 
+struct TTNameTable {
+    enum NameId: UInt16 {
+        case copyright = 0
+        case fontFamily = 1
+        case fontSubfamily = 2
+        case fontSubfamilyUniqueId = 3
+        case fontFullname = 4
+        case nameTableVersion = 5
+        case postscriptFontName = 6
+        case trademark = 7
+        case manufacturerName = 8
+        case designerName = 9
+        case description = 10
+        case vendorURL = 11
+        case designerURL = 12
+        case licenseDescription = 13
+        case licenseInformationURL = 14
+        case reserved15 = 15
+        case preferedFamily = 16
+        case preferedSubfamily = 17
+        case compatibleFullname = 18 // mac only
+    }
+    struct NameRecordIndex {
+        let platformId: UInt16
+        let platformSpecificId : UInt16
+        let languageId: UInt16
+        let nameId: UInt16
+        let length: UInt16 // Name string length in bytes.
+        let offset: UInt16 // Name string offset in bytes from stringOffset.
+    }
+    typealias LanguageId = UInt16
+
+    let format: UInt16
+    let count: UInt16
+    let stringOffset: UInt16
+    var nameRecords: [NameRecordIndex]
+
+    //computed
+    var names: [LanguageId: [NameId: String]]
+}
+
 struct TTMAXPTable {
     let version              : Fixed
     let numGlyphs            : UInt16 // the number of glyphs in the font

@@ -53,7 +53,6 @@ public class SimpleDocumentIndexer {
             }
         }
 
-
         static func canCoalesce(previousBlockFont: PDFFont, with nextBlockFont: PDFFont) -> Bool {
             return
                 previousBlockFont.baseFontName == nextBlockFont.baseFontName
@@ -175,4 +174,6 @@ extension PDFRenderingState {
     var deviceSpaceFontSize : CGFloat {
         return deviceSpaceMatrix.a * fontSize
     }
+
 }
+

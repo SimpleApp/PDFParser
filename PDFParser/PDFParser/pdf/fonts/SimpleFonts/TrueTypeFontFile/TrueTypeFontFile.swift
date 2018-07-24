@@ -39,6 +39,7 @@ struct TrueTypeFontFile {
     private var cmapTable: TTCMAPTable?
     private var locaTable: TTLOCATable?
     private var glyfTable: TTGLYFTable?
+    private var nameTable: TTNameTable?
 
     init(data: CFData) throws {
         let reader = TrueTypeFontFileReader(data as Data)
@@ -50,6 +51,7 @@ struct TrueTypeFontFile {
         try readCMAPTable(reader)
         try readLOCATable(reader)
         try readGLYFTable(reader)
+        try? readNameTable(reader)
     }
 
 
@@ -154,6 +156,64 @@ struct TrueTypeFontFile {
         self.hheaTable = hheaTable
 
         _ = r.seek(pos: oldPos)
+    }
+
+    mutating private func readNameTable(_ r: TrueTypeFontFileReader) throws {
+        guard let nameTableIndex = tableOffsets["name"] else {
+            throw FontFileError.tableIndexNotFound(table: "name")
+        }
+        let oldPos = r.seek(pos: Int(nameTableIndex.offset))
+
+        var nameTable = TTNameTable(format: r.get(),
+                                    count: r.get(),
+                                    stringOffset: r.get(),
+                                    nameRecords: [TTNameTable.NameRecordIndex](),
+                                    names: [TTNameTable.LanguageId: [TTNameTable.NameId : String]]())
+
+        var nameRecords = [TTNameTable.NameRecordIndex]()
+        for _ in 0 ..< nameTable.count {
+            nameRecords.append(TTNameTable.NameRecordIndex(
+                platformId: r.get(),
+                platformSpecificId: r.get(),
+                languageId: r.get(),
+                nameId: r.get(),
+                length: r.get(),
+                offset: r.get()))
+        }
+        nameTable.nameRecords = nameRecords
+
+        var names = [TTNameTable.LanguageId: [TTNameTable.NameId : String]]()
+        for record in nameRecords {
+            guard let nameId = TTNameTable.NameId(rawValue: record.nameId) else { continue }
+
+            let _ = r.seek(pos: Int(nameTableIndex.offset) + Int(nameTable.stringOffset) + Int(record.offset))
+
+            var encoding = String.Encoding.ascii
+            switch (record.platformId, record.platformSpecificId) {
+            case (0, _):
+                encoding = .utf16BigEndian
+            case (1,0):
+                encoding = .macOSRoman
+            case (1,1):
+                encoding = .japaneseEUC
+            //TODO: add other mac encoding.
+            case (3,_):
+                encoding = .utf16BigEndian // TODO: fix.
+            default:
+                break
+            }
+
+            let nameStringBytes: [UInt8] = r.getArray(count: Int(record.length))
+            let nameString = String(bytes: nameStringBytes, encoding: encoding)
+
+            names[record.languageId, default:[:]][nameId] = nameString
+        }
+
+        nameTable.names = names
+        self.nameTable = nameTable
+
+        _ = r.seek(pos: oldPos)
+
     }
 
     mutating private func readMAXPTable( _ r: TrueTypeFontFileReader) throws {
@@ -396,6 +456,14 @@ struct TrueTypeFontFile {
 
 
 extension TrueTypeFontFile: PDFFontFile {
+
+    func fontInfos() -> PDFFontFileInfos? {
+        guard let nameTable = self.nameTable else { return nil}
+        return PDFFontFileInfos( family: nameTable.names[0]?[.fontFamily],
+                                 subfamily: nameTable.names[0]?[.fontSubfamily],
+                                 fullName: nameTable.names[0]?[.fontFullname] )
+    }
+
     func glyphName(forChar originalCharCode: PDFCharacterCode) -> String? {
         return nil
     }

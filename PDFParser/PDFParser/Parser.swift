@@ -289,14 +289,14 @@ public class Parser {
         let (str, originalCharCodes) = renderingState.font.string(from: pdfString)
         parser.log( "didScanString \(str)")
 
-        let (deviceSpaceFrame, userSpaceSize) = renderingState.deviceSpaceFrameForText(str,originalCharCodes: originalCharCodes)
+        let (deviceSpaceFrame, textMatrixTranslation) = renderingState.deviceSpaceFrameForText(str,originalCharCodes: originalCharCodes)
 
         parser.indexer.didScanTextBlock(
             TextBlock( chars: str,
                        originalCharCodes: originalCharCodes,
                        renderingState: renderingState,
                        frame:deviceSpaceFrame))
-        renderingState.translateTextMatrix(by: CGSize(width: userSpaceSize.width, height:0))
+        renderingState.translateTextMatrix(by: CGSize(width: textMatrixTranslation.width, height:0))
     }
 
     static func didScanNewLine(scanner: CGPDFScannerRef, parser: Parser, persistLeading: Bool) {
