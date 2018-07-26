@@ -11,20 +11,24 @@ class ViewController: UIViewController {
 
     var documentIndexer = SimpleDocumentIndexer()
 
+    let page = 1
+    let fileName = "Kurt the Cat"
+    let fontName = "BaskerVille"
+
     override func viewDidLoad() {
         super.viewDidLoad()
         // Do any additional setup after loading the view, typically from a nib.
-        let documentPath = Bundle.main.path(forResource: "Kurt the Cat", ofType: "pdf", inDirectory: nil, forLocalization: nil)
+        let documentPath = Bundle.main.path(forResource:fileName , ofType: "pdf", inDirectory: nil, forLocalization: nil)
 
         let parser = try! Parser(documentURL: URL(fileURLWithPath: documentPath!), delegate:self, indexer: documentIndexer)
         parser.parse()
 
         print( "Raw dump : \n")
-        print(documentIndexer.pageIndexes[1]!.textBlocks)
+        print(documentIndexer.pageIndexes[page]!.textBlocks)
 
         print( "\nLines : \n")
-        print(documentIndexer.pageIndexes[1]!.allLinesDescription())
-        showPage(pageIndex: documentIndexer.pageIndexes[1]!)
+        print(documentIndexer.pageIndexes[page]!.allLinesDescription())
+        showPage(pageIndex: documentIndexer.pageIndexes[page]!)
     }
 
     func showPage(pageIndex: SimpleDocumentIndexer.PageIndex) {
@@ -32,20 +36,23 @@ class ViewController: UIViewController {
             showLine(l)
         }
         */
-        for b in pageIndex.textBlocks {
-            showBlock(b)
+        for var b in pageIndex.textBlocks {
+            showBlock(&b)
         }
     }
 
     func showLine(_ line: SimpleDocumentIndexer.LineTextBlock) {
-        for b in line.blocks {
-            showBlock(b)
+        for var b in line.blocks {
+            showBlock(&b)
         }
     }
 
-    func showBlock(_ textBlock: TextBlock) {
-        let lbl = UILabel(frame: textBlock.frame.insetBy(dx: 0, dy: -textBlock.renderingState.fontSize * 2).offsetBy(dx: 0, dy: textBlock.renderingState.fontSize))
-        lbl.font = UIFont(name: "Baskerville", size: textBlock.renderingState.fontSize * textBlock.renderingState.textMatrix.a)
+    func showBlock(_  textBlock: inout TextBlock) {
+        let lbl = UILabel(frame: textBlock.frame.insetBy(dx: 0, dy: -textBlock.renderingState.deviceSpaceFontSize * 2).offsetBy(dx: 0, dy: textBlock.renderingState.deviceSpaceFontSize))
+        if let fontDescr =  UIFont(name: fontName, size: textBlock.renderingState.deviceSpaceFontSize)?.fontDescriptor.withSymbolicTraits(textBlock.attributes.fontTraits)  {
+            lbl.font = UIFont(descriptor: fontDescr, size: textBlock.renderingState.deviceSpaceFontSize)
+        }
+
         lbl.backgroundColor = UIColor.clear
         lbl.lineBreakMode = .byClipping
         lbl.text = textBlock.chars

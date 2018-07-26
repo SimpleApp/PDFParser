@@ -18,6 +18,10 @@
 		3228B20720FF6BE7007CA917 /* PDFType1FontFile.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3228B20520FF6BE7007CA917 /* PDFType1FontFile.swift */; };
 		3228B20920FF6C31007CA917 /* TrueTypeFontFile.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3228B20820FF6C31007CA917 /* TrueTypeFontFile.swift */; };
 		3228B20A20FF6C31007CA917 /* TrueTypeFontFile.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3228B20820FF6C31007CA917 /* TrueTypeFontFile.swift */; };
+		324FA55021076F3D00AECA0E /* TextAttributes.swift in Sources */ = {isa = PBXBuildFile; fileRef = 324FA54F21076F3D00AECA0E /* TextAttributes.swift */; };
+		324FA55121076F3D00AECA0E /* TextAttributes.swift in Sources */ = {isa = PBXBuildFile; fileRef = 324FA54F21076F3D00AECA0E /* TextAttributes.swift */; };
+		324FA5542107B09F00AECA0E /* String.swift in Sources */ = {isa = PBXBuildFile; fileRef = 324FA5532107B09F00AECA0E /* String.swift */; };
+		324FA5552107B09F00AECA0E /* String.swift in Sources */ = {isa = PBXBuildFile; fileRef = 324FA5532107B09F00AECA0E /* String.swift */; };
 		325D453920F3C0D800F165A8 /* PDFAGL.swift in Sources */ = {isa = PBXBuildFile; fileRef = 325D453820F3C0D800F165A8 /* PDFAGL.swift */; };
 		325D453A20F3C0D800F165A8 /* PDFAGL.swift in Sources */ = {isa = PBXBuildFile; fileRef = 325D453820F3C0D800F165A8 /* PDFAGL.swift */; };
 		32934A5C20E38ED7009CB6D0 /* Parser.swift in Sources */ = {isa = PBXBuildFile; fileRef = 32934A5B20E38ED7009CB6D0 /* Parser.swift */; };
@@ -75,6 +79,8 @@
 		3228B1F820F63F99007CA917 /* SimpleDocumentIndexer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SimpleDocumentIndexer.swift; sourceTree = "<group>"; };
 		3228B20520FF6BE7007CA917 /* PDFType1FontFile.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PDFType1FontFile.swift; sourceTree = "<group>"; };
 		3228B20820FF6C31007CA917 /* TrueTypeFontFile.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrueTypeFontFile.swift; sourceTree = "<group>"; };
+		324FA54F21076F3D00AECA0E /* TextAttributes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextAttributes.swift; sourceTree = "<group>"; };
+		324FA5532107B09F00AECA0E /* String.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = String.swift; sourceTree = "<group>"; };
 		325D453820F3C0D800F165A8 /* PDFAGL.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PDFAGL.swift; sourceTree = "<group>"; };
 		32934A5B20E38ED7009CB6D0 /* Parser.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Parser.swift; sourceTree = "<group>"; };
 		32934A5E20E38EE2009CB6D0 /* PDFFont.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PDFFont.swift; sourceTree = "<group>"; };
@@ -127,6 +133,14 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		324FA5522107B09000AECA0E /* extensions */ = {
+			isa = PBXGroup;
+			children = (
+				324FA5532107B09F00AECA0E /* String.swift */,
+			);
+			path = extensions;
+			sourceTree = "<group>";
+		};
 		32A39B1C20EFA94F00A295AB /* fonts */ = {
 			isa = PBXGroup;
 			children = (
@@ -225,6 +239,7 @@
 		32E9ADC520E38DC0003CE600 /* pdf */ = {
 			isa = PBXGroup;
 			children = (
+				324FA5522107B09000AECA0E /* extensions */,
 				32A39B1C20EFA94F00A295AB /* fonts */,
 				32E9ADCF20E38E88003CE600 /* PDFRenderingState.swift */,
 				32934A7420E39384009CB6D0 /* CMap.swift */,
@@ -238,6 +253,7 @@
 				329542F820E3CC4200B2C495 /* DocumentIndexer.swift */,
 				3228B1F820F63F99007CA917 /* SimpleDocumentIndexer.swift */,
 				32934A6220E38EE8009CB6D0 /* TextBlock.swift */,
+				324FA54F21076F3D00AECA0E /* TextAttributes.swift */,
 			);
 			path = result;
 			sourceTree = "<group>";
@@ -355,6 +371,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				324FA5542107B09F00AECA0E /* String.swift in Sources */,
 				3228B20220FE511D007CA917 /* ViewController.swift in Sources */,
 				32934A7520E39384009CB6D0 /* CMap.swift in Sources */,
 				32934A5F20E38EE2009CB6D0 /* PDFFont.swift in Sources */,
@@ -378,6 +395,7 @@
 				32D4BC54210239D1006E344D /* TrueTypeCMAPSubTables.swift in Sources */,
 				320F04FD20F3B5BE008A9EF5 /* PDFFontFile.swift in Sources */,
 				32E9ADDA20E38E89003CE600 /* PDFRenderingState.swift in Sources */,
+				324FA55021076F3D00AECA0E /* TextAttributes.swift in Sources */,
 				32A39B2D20EFA9F100A295AB /* PDFSimpleFont.swift in Sources */,
 				3228B20920FF6C31007CA917 /* TrueTypeFontFile.swift in Sources */,
 				329542F920E3CC4200B2C495 /* DocumentIndexer.swift in Sources */,
@@ -389,6 +407,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				324FA55121076F3D00AECA0E /* TextAttributes.swift in Sources */,
 				3228B20720FF6BE7007CA917 /* PDFType1FontFile.swift in Sources */,
 				32A39B2220EFA9BB00A295AB /* PDFType0Font.swift in Sources */,
 				329542FA20E3CC4200B2C495 /* DocumentIndexer.swift in Sources */,
@@ -400,6 +419,7 @@
 				32934A7620E39384009CB6D0 /* CMap.swift in Sources */,
 				32A39B1F20EFA97800A295AB /* PDFCompositeFont.swift in Sources */,
 				32A39B3420EFAA0B00A295AB /* PDFType1Font.swift in Sources */,
+				324FA5552107B09F00AECA0E /* String.swift in Sources */,
 				3228B20A20FF6C31007CA917 /* TrueTypeFontFile.swift in Sources */,
 				32D4BC4D21023907006E344D /* TrueTypeFontFileReader.swift in Sources */,
 				320F04FE20F3B5BE008A9EF5 /* PDFFontFile.swift in Sources */,
