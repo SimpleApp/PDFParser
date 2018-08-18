@@ -13,6 +13,12 @@ let documentPath = Bundle.main.path(forResource: "Kurt the Cat", ofType: "pdf", 
 
 let parser = try! Parser(documentURL: URL(fileURLWithPath: documentPath!), delegate:self, indexer: documentIndexer)
 parser.parse()
+
+print( "All Text Blocks Raw dump : \n")
+print(documentIndexer.pageIndexes[1]!.textBlocks)
+
+print( "\nWords per lines : \n")
+print(documentIndexer.pageIndexes[1]!.allLinesDescription())
 ```
 
 ViewController in the DemoApp displays UILabel for textblocks. This lets you see if the frames for the textblock returned by the parser is correct.
