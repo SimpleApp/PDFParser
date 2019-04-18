@@ -18,6 +18,8 @@
 		3228B20720FF6BE7007CA917 /* PDFType1FontFile.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3228B20520FF6BE7007CA917 /* PDFType1FontFile.swift */; };
 		3228B20920FF6C31007CA917 /* TrueTypeFontFile.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3228B20820FF6C31007CA917 /* TrueTypeFontFile.swift */; };
 		3228B20A20FF6C31007CA917 /* TrueTypeFontFile.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3228B20820FF6C31007CA917 /* TrueTypeFontFile.swift */; };
+		3235D24222678ABC007B543F /* CIDFontWidths.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3235D24122678ABC007B543F /* CIDFontWidths.swift */; };
+		3235D24322678AC2007B543F /* CIDFontWidths.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3235D24122678ABC007B543F /* CIDFontWidths.swift */; };
 		324FA55021076F3D00AECA0E /* TextAttributes.swift in Sources */ = {isa = PBXBuildFile; fileRef = 324FA54F21076F3D00AECA0E /* TextAttributes.swift */; };
 		324FA55121076F3D00AECA0E /* TextAttributes.swift in Sources */ = {isa = PBXBuildFile; fileRef = 324FA54F21076F3D00AECA0E /* TextAttributes.swift */; };
 		324FA5542107B09F00AECA0E /* String.swift in Sources */ = {isa = PBXBuildFile; fileRef = 324FA5532107B09F00AECA0E /* String.swift */; };
@@ -37,8 +39,6 @@
 		32A39B1820ED284400A295AB /* Kurt the Cat.pdf in Resources */ = {isa = PBXBuildFile; fileRef = 32A39B1720ED284400A295AB /* Kurt the Cat.pdf */; };
 		32A39B1A20EE91A000A295AB /* PDFFontCollection.swift in Sources */ = {isa = PBXBuildFile; fileRef = 32A39B1920EE91A000A295AB /* PDFFontCollection.swift */; };
 		32A39B1B20EE91A000A295AB /* PDFFontCollection.swift in Sources */ = {isa = PBXBuildFile; fileRef = 32A39B1920EE91A000A295AB /* PDFFontCollection.swift */; };
-		32A39B1E20EFA97800A295AB /* PDFCompositeFont.swift in Sources */ = {isa = PBXBuildFile; fileRef = 32A39B1D20EFA97800A295AB /* PDFCompositeFont.swift */; };
-		32A39B1F20EFA97800A295AB /* PDFCompositeFont.swift in Sources */ = {isa = PBXBuildFile; fileRef = 32A39B1D20EFA97800A295AB /* PDFCompositeFont.swift */; };
 		32A39B2120EFA9BB00A295AB /* PDFType0Font.swift in Sources */ = {isa = PBXBuildFile; fileRef = 32A39B2020EFA9BB00A295AB /* PDFType0Font.swift */; };
 		32A39B2220EFA9BB00A295AB /* PDFType0Font.swift in Sources */ = {isa = PBXBuildFile; fileRef = 32A39B2020EFA9BB00A295AB /* PDFType0Font.swift */; };
 		32A39B2420EFA9C900A295AB /* PDFCIDFont.swift in Sources */ = {isa = PBXBuildFile; fileRef = 32A39B2320EFA9C900A295AB /* PDFCIDFont.swift */; };
@@ -79,6 +79,7 @@
 		3228B1F820F63F99007CA917 /* SimpleDocumentIndexer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SimpleDocumentIndexer.swift; sourceTree = "<group>"; };
 		3228B20520FF6BE7007CA917 /* PDFType1FontFile.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PDFType1FontFile.swift; sourceTree = "<group>"; };
 		3228B20820FF6C31007CA917 /* TrueTypeFontFile.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrueTypeFontFile.swift; sourceTree = "<group>"; };
+		3235D24122678ABC007B543F /* CIDFontWidths.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CIDFontWidths.swift; sourceTree = "<group>"; };
 		324FA54F21076F3D00AECA0E /* TextAttributes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextAttributes.swift; sourceTree = "<group>"; };
 		324FA5532107B09F00AECA0E /* String.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = String.swift; sourceTree = "<group>"; };
 		325D453820F3C0D800F165A8 /* PDFAGL.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PDFAGL.swift; sourceTree = "<group>"; };
@@ -89,7 +90,6 @@
 		329542F820E3CC4200B2C495 /* DocumentIndexer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DocumentIndexer.swift; sourceTree = "<group>"; };
 		32A39B1720ED284400A295AB /* Kurt the Cat.pdf */ = {isa = PBXFileReference; lastKnownFileType = image.pdf; path = "Kurt the Cat.pdf"; sourceTree = "<group>"; };
 		32A39B1920EE91A000A295AB /* PDFFontCollection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PDFFontCollection.swift; sourceTree = "<group>"; };
-		32A39B1D20EFA97800A295AB /* PDFCompositeFont.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PDFCompositeFont.swift; sourceTree = "<group>"; };
 		32A39B2020EFA9BB00A295AB /* PDFType0Font.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PDFType0Font.swift; sourceTree = "<group>"; };
 		32A39B2320EFA9C900A295AB /* PDFCIDFont.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PDFCIDFont.swift; sourceTree = "<group>"; };
 		32A39B2620EFA9D900A295AB /* PDFCIDType0Font.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PDFCIDType0Font.swift; sourceTree = "<group>"; };
@@ -133,6 +133,15 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		3235D24022678A59007B543F /* Container Types */ = {
+			isa = PBXGroup;
+			children = (
+				32934A7420E39384009CB6D0 /* CMap.swift */,
+				3235D24122678ABC007B543F /* CIDFontWidths.swift */,
+			);
+			path = "Container Types";
+			sourceTree = "<group>";
+		};
 		324FA5522107B09000AECA0E /* extensions */ = {
 			isa = PBXGroup;
 			children = (
@@ -172,7 +181,6 @@
 		32A39B3C20EFAA2F00A295AB /* CompositeFonts */ = {
 			isa = PBXGroup;
 			children = (
-				32A39B1D20EFA97800A295AB /* PDFCompositeFont.swift */,
 				32A39B2020EFA9BB00A295AB /* PDFType0Font.swift */,
 				32A39B2320EFA9C900A295AB /* PDFCIDFont.swift */,
 				32A39B2620EFA9D900A295AB /* PDFCIDType0Font.swift */,
@@ -242,7 +250,7 @@
 				324FA5522107B09000AECA0E /* extensions */,
 				32A39B1C20EFA94F00A295AB /* fonts */,
 				32E9ADCF20E38E88003CE600 /* PDFRenderingState.swift */,
-				32934A7420E39384009CB6D0 /* CMap.swift */,
+				3235D24022678A59007B543F /* Container Types */,
 			);
 			path = pdf;
 			sourceTree = "<group>";
@@ -319,10 +327,11 @@
 				TargetAttributes = {
 					32E9AD8E20E38C1D003CE600 = {
 						CreatedOnToolsVersion = 9.3;
-						LastSwiftMigration = 0930;
+						LastSwiftMigration = 1020;
 					};
 					32E9AD9D20E38C82003CE600 = {
 						CreatedOnToolsVersion = 9.3;
+						LastSwiftMigration = 1020;
 					};
 				};
 			};
@@ -378,6 +387,7 @@
 				32934A5C20E38ED7009CB6D0 /* Parser.swift in Sources */,
 				32D4BC4C21023907006E344D /* TrueTypeFontFileReader.swift in Sources */,
 				32A39B3620EFAA1600A295AB /* PDFMMType1Font.swift in Sources */,
+				3235D24222678ABC007B543F /* CIDFontWidths.swift in Sources */,
 				32A39B2720EFA9D900A295AB /* PDFCIDType0Font.swift in Sources */,
 				325D453920F3C0D800F165A8 /* PDFAGL.swift in Sources */,
 				32A39B3020EFA9FE00A295AB /* PDFTrueTypeFont.swift in Sources */,
@@ -385,7 +395,6 @@
 				32A39B2420EFA9C900A295AB /* PDFCIDFont.swift in Sources */,
 				32934A6920E38EE9009CB6D0 /* TextBlock.swift in Sources */,
 				320F050020F3B600008A9EF5 /* PDFFontDescriptor.swift in Sources */,
-				32A39B1E20EFA97800A295AB /* PDFCompositeFont.swift in Sources */,
 				32A39B2120EFA9BB00A295AB /* PDFType0Font.swift in Sources */,
 				32D4BC5021023952006E344D /* TrueTypeTables.swift in Sources */,
 				32A39B3920EFAA1F00A295AB /* PDFType3Font.swift in Sources */,
@@ -417,7 +426,6 @@
 				3228B1FA20F63F99007CA917 /* SimpleDocumentIndexer.swift in Sources */,
 				32934A5D20E38ED9009CB6D0 /* Parser.swift in Sources */,
 				32934A7620E39384009CB6D0 /* CMap.swift in Sources */,
-				32A39B1F20EFA97800A295AB /* PDFCompositeFont.swift in Sources */,
 				32A39B3420EFAA0B00A295AB /* PDFType1Font.swift in Sources */,
 				324FA5552107B09F00AECA0E /* String.swift in Sources */,
 				3228B20A20FF6C31007CA917 /* TrueTypeFontFile.swift in Sources */,
@@ -430,6 +438,7 @@
 				32A39B3120EFA9FE00A295AB /* PDFTrueTypeFont.swift in Sources */,
 				320F050120F3B600008A9EF5 /* PDFFontDescriptor.swift in Sources */,
 				32D4BC55210239D1006E344D /* TrueTypeCMAPSubTables.swift in Sources */,
+				3235D24322678AC2007B543F /* CIDFontWidths.swift in Sources */,
 				32E9ADA320E38C82003CE600 /* ViewController.swift in Sources */,
 				325D453A20F3C0D800F165A8 /* PDFAGL.swift in Sources */,
 				32A39B3A20EFAA1F00A295AB /* PDFType3Font.swift in Sources */,
@@ -514,7 +523,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 11.3;
+				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
 				MTL_ENABLE_DEBUG_INFO = YES;
 				ONLY_ACTIVE_ARCH = YES;
 				SDKROOT = iphoneos;
@@ -571,7 +580,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 11.3;
+				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				SDKROOT = iphoneos;
 				SWIFT_COMPILATION_MODE = wholemodule;
@@ -595,6 +604,7 @@
 				DYLIB_INSTALL_NAME_BASE = "@rpath";
 				INFOPLIST_FILE = PDFParser/Info.plist;
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
+				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -604,7 +614,7 @@
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
 				SKIP_INSTALL = YES;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
-				SWIFT_VERSION = 4.0;
+				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Debug;
@@ -622,6 +632,7 @@
 				DYLIB_INSTALL_NAME_BASE = "@rpath";
 				INFOPLIST_FILE = PDFParser/Info.plist;
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
+				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -630,7 +641,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = fr.simpleapp.PDFParser;
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
 				SKIP_INSTALL = YES;
-				SWIFT_VERSION = 4.0;
+				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Release;
@@ -648,7 +659,7 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = fr.simpleapp.ParserDemoApp;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				SWIFT_VERSION = 4.0;
+				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Debug;
@@ -666,7 +677,7 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = fr.simpleapp.ParserDemoApp;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				SWIFT_VERSION = 4.0;
+				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Release;

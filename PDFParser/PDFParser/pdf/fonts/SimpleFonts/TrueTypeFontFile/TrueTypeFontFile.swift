@@ -75,7 +75,7 @@ struct TrueTypeFontFile {
                                                          length: table.length) {
                 if table.checksum == 0 {
                     //TODO: use correct logging mechanism.
-                    print("table \(tag) has no checksum. ignore.")
+                    //print("table \(tag) has no checksum. ignore.")
                 } else {
                     throw FontFileError.invalidTableChecksum(tag: tag)
                 }
@@ -375,6 +375,8 @@ struct TrueTypeFontFile {
             _ = r.seek(pos: Int(cmapTableIndex.offset + subtableIndex.offset))
             let format: UInt16  = r.get()
             switch format {
+            case 0:
+                subtables.append(readCMapSubTableFormat0(r, tableBeginOffset:Int(subtableIndex.offset)))
             case 4:
                 subtables.append(readCMapSubTableFormat4(r, tableBeginOffset: Int(subtableIndex.offset) ))
             case 6:
@@ -393,7 +395,16 @@ struct TrueTypeFontFile {
                                      preferedSubtable: preferedSubtable)
         _ = r.seek(pos: oldPos)
     }
+    func readCMapSubTableFormat0(_ r: TrueTypeFontFileReader, tableBeginOffset: Int) -> TTCMAPTable.Subtable {
+        var res = TTCMapSubtableFormat0(format: UInt16(0), //already parsed
+            length: r.get(),
+            language: r.get(),
+            glyphIndexArray: [UInt8]())
 
+        res.glyphIndexArray = r.getArray(count:Int(res.length))
+
+        return .format0(subtable: res)
+    }
     func readCMapSubTableFormat4(_ r: TrueTypeFontFileReader, tableBeginOffset: Int) -> TTCMAPTable.Subtable {
         var res = TTCMapSubtableFormat4(format: UInt16(4), //already parsed
                                         length: r.get(),
@@ -464,17 +475,25 @@ extension TrueTypeFontFile: PDFFontFile {
                                  fullName: nameTable.names[0]?[.fontFullname] )
     }
 
-    func glyphName(forChar originalCharCode: PDFCharacterCode) -> String? {
+    func unicodeScalar(forChar char:CharacterId) -> Unicode.Scalar? {
+        guard let cmapTable = self.cmapTable else { return nil }
+        #if DEBUG
+        print("WARNING : TrueType fontfile cmap lookup not supported.")
+        #endif
         return nil
     }
-    func glyphWidthInThousandthOfEM(forChar char:unichar, originalCharCode oChar: PDFCharacterCode) -> CGFloat? {
+
+    func glyphName(forChar char: CharacterId) -> String? {
+        return nil
+    }
+    func glyphWidthInThousandthOfEM(forChar char: CharacterId) -> CGFloat? {
         guard
             let headTable = self.headTable,
             let cmapTable = self.cmapTable,
             let subtableIndex = cmapTable.preferedSubtable,
             let hmtx = self.hmtxTable else { return nil }
 
-        let glId = glyphId(forChar: Int(oChar), in: cmapTable.subtables[subtableIndex.index]) ?? 0
+        let glId = glyphId(forChar: char, in: cmapTable.subtables[subtableIndex.index]) ?? 0
 
         //Logging. TODO: Debug only.
         /*
@@ -510,8 +529,10 @@ extension TrueTypeFontFile: PDFFontFile {
 
 
 
-    func glyphId(forChar char:Int, in subtable: TTCMAPTable.Subtable) -> Int? {
+    func glyphId(forChar char:CharacterId, in subtable: TTCMAPTable.Subtable) -> PDFFontFile.GlyphId? {
         switch subtable {
+        case .format2(let subtable):
+            return subtable.glyphId(forChar: char)
         case .format4(let subtable):
             return subtable.glyphId(forChar: char)
         case .format6(let subtable):
@@ -524,9 +545,14 @@ extension TrueTypeFontFile: PDFFontFile {
         }
     }
 }
+extension TTCMapSubtableFormat2 {
+    func glyphId(forChar char:PDFFontFile.CharacterId) -> PDFFontFile.GlyphId? {
+        return char
+    }
+}
 
 extension TTCMapSubtableFormat4 {
-    func glyphId(forChar char:Int) -> Int? {
+    func glyphId(forChar char:PDFFontFile.CharacterId) -> PDFFontFile.GlyphId? {
         var segmentTmp: Int? = nil
         for (i, endCharCode) in endCode.enumerated() {
             if char <= endCharCode {
@@ -574,14 +600,14 @@ extension TTCMapSubtableFormat4 {
 }
 
 extension TTCMapSubtableFormat6 {
-    func glyphId(forChar char:Int) -> Int? {
+    func glyphId(forChar char:PDFFontFile.CharacterId) -> PDFFontFile.GlyphId? {
         guard char >= firstCode && char < firstCode + entryCount else { return 0 }
         return Int(glyphIndexArray[char - Int(firstCode)])
     }
 }
 
 extension TTCMapSubtableFormat12Or13 {
-    func glyphId(forChar char:Int, format: UInt16) -> Int? {
+    func glyphId(forChar char:PDFFontFile.CharacterId, format: UInt16) -> PDFFontFile.GlyphId? {
         var groupTmp: TTCMapSubtableFormat12Or13.Group?
         for g in groups {
             if char <= g.endCharCode {

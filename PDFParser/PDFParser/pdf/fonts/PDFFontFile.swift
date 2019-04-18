@@ -9,17 +9,20 @@ import Foundation
 import CoreGraphics
 
 
-struct PDFFontFileInfos {
+public struct PDFFontFileInfos {
     let family: String?
     let subfamily: String?
     let fullName: String?
 }
 
 
-protocol PDFFontFile {
+public protocol PDFFontFile {
+    typealias CharacterId = Int
+    typealias GlyphId = Int
 
-    func glyphName(forChar originalCharCode:PDFCharacterCode) -> String?
-    func glyphWidthInThousandthOfEM(forChar char:unichar, originalCharCode oChar: PDFCharacterCode) -> CGFloat?
+    //Depending on the font program, a char can be encoding in one or two bytes.
+    func unicodeScalar(forChar char:CharacterId) -> Unicode.Scalar?
+    func glyphWidthInThousandthOfEM(forChar char: CharacterId) -> CGFloat?
     func fontInfos() -> PDFFontFileInfos?
 }
 

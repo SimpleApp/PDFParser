@@ -20,7 +20,7 @@ class ViewController: UIViewController {
         // Do any additional setup after loading the view, typically from a nib.
         let documentPath = Bundle.main.path(forResource:fileName , ofType: "pdf", inDirectory: nil, forLocalization: nil)
 
-        let parser = try! Parser(documentURL: URL(fileURLWithPath: documentPath!), delegate:self, indexer: documentIndexer)
+        let parser = try! Parser(documentURL: URL(fileURLWithPath: documentPath!), delegate:self, indexer: documentIndexer, log:true)
         parser.parse()
 
         print( "Raw dump : \n")
@@ -68,7 +68,11 @@ class ViewController: UIViewController {
 }
 
 extension ViewController: ParserDelegate {
-    func parser(p: Parser, didCompleteWithError error: Error?) {
+    func parser(p: Parser, didParse page: Int, outOf nbPages: Int) {
+        print("parsing \(page) outOf \(nbPages)")
+    }
+
+    func parser(p: Parser, didCompleteWithError error: Error?, cgPDFDocument: CGPDFDocument?) {
         if let error = error {
             print(error)
         }

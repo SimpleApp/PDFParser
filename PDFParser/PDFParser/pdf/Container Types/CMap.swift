@@ -8,51 +8,77 @@
 import Foundation
 import CoreGraphics
 
-extension Range : Hashable where Bound == unichar {
-    public var hashValue: Int {
-        return (lowerBound+upperBound).hashValue
-    }
-}
-
 public class CMap {
 
-    typealias OperatorHandler = (_ value: String, _ context: inout Context) -> ()
+    typealias OperatorHandler = (_ cmap: CMap, _ value: String, _ context: inout Context) -> ()
     struct Operator {
         var startTag: String
         var endTag: String
         var handler: OperatorHandler
 
-        static func handleCodeSpaceRange(value: String, context: inout Context) {
-
+        static func handleCodeSpaceRange(_ cmap: CMap, _ value: String, _ context: inout Context) {
+            let value = valueOfTag(tagString: value)
+            guard context.paramStack.count >= 1 else
+            {
+                context.paramStack.append(value)
+                return;
+            }
+            cmap.codeSpaceRanges.append(rangeValue(context.paramStack[0], value))
+            context.paramStack.removeAll()
         }
 
-        static func handleCharacter(value: String, context: inout Context) {
-
+        static func handleCharacter(_ cmap: CMap, _ value: String, _ context: inout Context) {
+            let value = valueOfTag(tagString: value)
+            guard context.paramStack.count >= 1 else
+            {
+                context.paramStack.append(value)
+                return;
+            }
+            cmap.characterMappings[context.paramStack[0]] = unichar(value)
+            context.paramStack.removeAll()
         }
 
-        static func handleCharacterRange(value: String, context: inout Context) {
+        static func handleCharacterRange(_ cmap: CMap, _ value: String, _ context: inout Context) {
+            let value = valueOfTag(tagString: value)
+            guard context.paramStack.count >= 2 else
+            {
+                context.paramStack.append(value)
+                return;
+            }
+            cmap.characterRangeMappings[rangeValue(context.paramStack[0], context.paramStack[1])] = unichar(value)
+            context.paramStack.removeAll()
+        }
 
+        static func rangeValue(_ low: Int, _ high: Int) -> ClosedRange<Int> {
+            let high = max(high, low)
+            return low...high
+        }
+
+        static let tagSet = CharacterSet(charactersIn: "<>")
+        static func valueOfTag(tagString: String) -> Int {
+            var res: UInt32 = 0
+            let tagString = tagString.trimmingCharacters(in: tagSet)
+            let scanner = Scanner(string: tagString)
+            scanner.scanHexInt32(&res)
+            return Int(res)
         }
     }
 
     struct Context {
+        var paramStack: [Int]
         var cmapOperator: Operator?
     }
 
     var context: Context?
 
     /* CMap ranges */
-    var codeSpaceRanges = [Range<unichar>]()
+    var codeSpaceRanges = [ClosedRange<PDFFontFile.CharacterId>]()
 
     /* Character mappings */
-    var  characterMappings = [unichar:unichar]()
+    var characterMappings = [PDFFontFile.CharacterId:unichar]()
 
     /* Character range mappings */
-    var characterRangeMappings = [Range<unichar>:Int]()
-
-    func unicodeCharacter(forPDFCharacter charCode: PDFCharacterCode) -> unichar? {
-        return characterMappings[unichar(charCode)]
-    }
+    var characterRangeMappings = [ClosedRange<PDFFontFile.CharacterId>:unichar]()
 
     static let sharedOperators : [String: Operator] = [
         "begincodespacerange": Operator(startTag: "begincodespacerange", endTag: "endcodespacerange", handler: Operator.handleCodeSpaceRange),
@@ -64,7 +90,6 @@ public class CMap {
     func cmapOperator(withStartingToken token:String) -> Operator? {
         return CMap.sharedOperators[token]
     }
-
 
     convenience init(string: String) {
         self.init()
@@ -81,8 +106,7 @@ public class CMap {
         parse(text)
     }
 
-
-    private func isInCodeSpaceRange(_ cid: unichar) -> Bool {
+    private func isInCodeSpaceRange(_ cid: PDFFontFile.CharacterId) -> Bool {
         return codeSpaceRanges.first { $0.contains(cid) } != nil
     }
 
@@ -130,20 +154,38 @@ public class CMap {
         return CharacterSet.whitespacesAndNewlines
     }
 
-    func unicodeCharacter(cid: unichar) -> unichar? {
+    func unicodeCharacter(forChar cid: PDFFontFile.CharacterId) -> Unicode.Scalar? {
         if !isInCodeSpaceRange(cid) { return nil }
 
-        for (range, offset) in characterRangeMappings {
+        if let directMapping = characterMappings[cid] { return Unicode.Scalar(directMapping)}
+
+        for (range, lowRangeChar) in characterRangeMappings {
             if range.contains(cid) {
-                return cid.advanced(by: offset)
+                return Unicode.Scalar(lowRangeChar.advanced(by: (cid - range.lowerBound)))
             }
         }
+        return nil
+    }
 
-        return characterMappings[cid]
+    //Perform reverse lookup
+    func characterForUnicode(_ scalar: Unicode.Scalar) -> PDFFontFile.CharacterId? {
+        for (cid,unic) in characterMappings {
+            if Unicode.Scalar(unic) == scalar {
+                return cid
+            }
+        }
+        for (range, unicStart) in characterRangeMappings {
+            let distToUnicStart = Int(scalar.value) - Int(unicStart)
+            guard distToUnicStart >= 0 && distToUnicStart < range.count else { continue }
+            return range.lowerBound.advanced(by: distToUnicStart)
+        }
+        return nil
     }
 
     func parse(_ cMapString: String) {
-        let scanner = Scanner(string:cMapString)
+
+        let spacedItemsString = cMapString.replacingOccurrences(of: "><", with: "> <")
+        let scanner = Scanner(string:spacedItemsString)
         while !scanner.isAtEnd
         {
             guard let token = tokenByTrimmingComments(scanner: scanner) else { continue }
@@ -151,14 +193,14 @@ public class CMap {
             if let cmapOperator = self.cmapOperator(withStartingToken: token)
             {
                 // Start a new context
-                context = Context(cmapOperator: cmapOperator)
+                context = Context(paramStack:[], cmapOperator: cmapOperator)
             }
             else if var context = self.context
             {
                 if context.cmapOperator?.endTag == token {
                     self.context = nil
                 } else {
-                    context.cmapOperator?.handler(token, &context)
+                    context.cmapOperator?.handler(self, token, &context)
                     self.context = context
                 }
             }

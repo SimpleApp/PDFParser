@@ -40,10 +40,20 @@ class TrueTypeFontFileReader {
         return pos
     }
 
-    func get<T>() -> T where T: FixedWidthInteger {
+   /*func get<T>() -> T where T: FixedWidthInteger {
         let res = data[pos...].withUnsafeBytes {
             (pointer: UnsafePointer<T>) -> T in
             return currentSystemIsLittleEndian ? pointer.pointee.byteSwapped : pointer.pointee
+        }
+        pos += MemoryLayout<T>.size
+        return res
+    }*/
+
+    func get<T>() -> T where T: FixedWidthInteger {
+        let res = data[pos...].withUnsafeBytes { (pointer: UnsafeRawBufferPointer) -> T in
+            let typedPointer: UnsafeBufferPointer<T> = pointer.bindMemory(to: T.self)
+
+            return currentSystemIsLittleEndian ? typedPointer[0].byteSwapped : typedPointer[0]
         }
         pos += MemoryLayout<T>.size
         return res
@@ -79,6 +89,7 @@ class TrueTypeFontFileReader {
 
     func getArray<T>(count: Int) -> [T] where T: FixedWidthInteger {
         var res = [T]()
+        guard count > 0 else { return res }
         for _ in 0 ..< count {
             res.append(get())
         }

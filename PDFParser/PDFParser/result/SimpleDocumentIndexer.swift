@@ -7,6 +7,29 @@
 
 import Foundation
 import CoreGraphics
+import UIKit
+
+fileprivate extension TextBlock {
+    func isBold() -> Bool {
+        return attributes.fontTraits.contains(UIFontDescriptor.SymbolicTraits.traitBold)
+    }
+
+    func wordSpacing(errorFactor:CGFloat = 0.99) -> CGFloat {
+        var spaceOriginaCharIds = [PDFFontFile.CharacterId]()
+        var res: CGFloat = 0.0
+        if let spaceCharId = renderingState.font.spaceCharId {
+            spaceOriginaCharIds = [spaceCharId]
+            res = renderingState.sizeInDeviceSpace(forCharacters: spaceOriginaCharIds).deviceSpaceSize.width
+        }
+        if res > 0 { return errorFactor * res }
+        res = renderingState.wordSpacing
+        if res > 0 { return errorFactor * res }
+        res = renderingState.characterSpacing
+        if res > 0 { return errorFactor * res }
+
+        return errorFactor * frame.width / CGFloat(min(1,chars.count))
+    }
+}
 
 public class SimpleDocumentIndexer {
 
@@ -92,7 +115,7 @@ public class SimpleDocumentIndexer {
 
                 var res = previous
                 res.chars.append(next.chars)
-                res.originalCharCodes.append(contentsOf: next.originalCharCodes)
+                res.characterIds.append(contentsOf: next.characterIds)
                 res.frame = CGRect(x: previous.frame.minX,y:previous.frame.minY,
                                    width: next.frame.maxX - previous.frame.minX,
                                    height: previous.frame.height)
@@ -103,7 +126,7 @@ public class SimpleDocumentIndexer {
 
 
         static func widthOfSpaceInDeviceSpace(renderingState: PDFRenderingState ) -> CGFloat {
-            return renderingState.sizeInDeviceSpace(ofText: " ", originalCharCodes: [renderingState.font.spaceCharEncoded ?? 0] ).deviceSpaceSize.width
+            return renderingState.sizeInDeviceSpace(forCharacters: [renderingState.font.spaceCharId ?? 0x20] ).deviceSpaceSize.width
         }
 
 
@@ -139,13 +162,13 @@ extension Unicode.Scalar {
     }
 }
 extension String {
-    func endsWithCharInSet(set: CharacterSet) -> Bool {
+    public func endsWithCharInSet(set: CharacterSet) -> Bool {
         return unicodeScalars.last?.isIn(set) ?? false
     }
-    func beginsWithCharInSet(set: CharacterSet) -> Bool {
+    public func beginsWithCharInSet(set: CharacterSet) -> Bool {
         return unicodeScalars.first?.isIn(set) ?? false
     }
-    func canFormWord(with str2: String) -> Bool {
+    public func canFormWord(with str2: String) -> Bool {
         return endsWithCharInSet(set: .letters) && str2.beginsWithCharInSet(set: .letters)
     }
 }
@@ -162,16 +185,16 @@ extension SimpleDocumentIndexer : DocumentIndexer {
     public func didScanTextBlock(_ textBlock: TextBlock) {
         //Revert Y-Orientation
         var revertedTextBlock = textBlock
-        revertedTextBlock.frame = CGRect(x:textBlock.frame.origin.x,
-                                 y: currentPageSize.height - textBlock.frame.origin.y,
-                                 width: textBlock.frame.width,
-                                 height: textBlock.frame.height)
+        revertedTextBlock.frame = CGRect(x:textBlock.frame.origin.x.rounded(.toNearestOrAwayFromZero),
+                                 y: (currentPageSize.height - textBlock.frame.origin.y).rounded(.toNearestOrAwayFromZero),
+                                 width: textBlock.frame.width.rounded(.toNearestOrAwayFromZero),
+                                 height: textBlock.frame.height.rounded(.toNearestOrAwayFromZero))
         currentPageIndex.push(revertedTextBlock)
     }
 }
 
 extension PDFRenderingState {
-    var deviceSpaceFontSize : CGFloat {
+    public var deviceSpaceFontSize : CGFloat {
         return deviceSpaceMatrix.a * fontSize
     }
 

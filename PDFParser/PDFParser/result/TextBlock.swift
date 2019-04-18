@@ -8,18 +8,17 @@ import UIKit
 
 
 public struct TextBlock {
-    var chars: String
-    var originalCharCodes:[PDFCharacterCode]
-    var renderingState: PDFRenderingState
-    var frame: CGRect
-    lazy var attributes: TextAtttributes = {
-        return TextAtttributes(rendering: renderingState)
-    }()
+    public var chars: String
+    public var characterIds:[PDFFontFile.CharacterId]
+    public var renderingState: PDFRenderingState
+    public var frame: CGRect
+    public var attributes: TextAtttributes
 
-    init(chars: String, originalCharCodes:[PDFCharacterCode],renderingState: PDFRenderingState, frame: CGRect) {
+    public init(chars: String, characterIds:[PDFFontFile.CharacterId],renderingState: PDFRenderingState, frame: CGRect) {
         self.chars = chars
-        self.originalCharCodes = originalCharCodes
+        self.characterIds = characterIds
         self.renderingState = renderingState
         self.frame = frame
+        self.attributes = TextAtttributes(rendering: renderingState)
     }
 }

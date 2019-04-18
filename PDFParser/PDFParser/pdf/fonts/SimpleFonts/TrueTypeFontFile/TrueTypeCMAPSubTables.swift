@@ -19,7 +19,7 @@ struct TTCMapSubtableFormat0 {
     let format          : UInt16 // Set to 0
     let length          : UInt16 // Length in bytes of the subtable (set to 262 for format 0)
     let language        : UInt16  // Language code (see above)
-    let glyphIndexArray : [UInt8] // [256] array that maps character codes to glyph index values
+    var glyphIndexArray : [UInt8] // [256] array that maps character codes to glyph index values
 }
 struct TTCMapSubtableFormat2 {
 

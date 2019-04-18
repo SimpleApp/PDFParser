@@ -15,17 +15,17 @@ public class PDFRenderingState {
         return textMatrix.concatenating(ctm)
     }
     var leading: CGFloat = 0
-    var wordSpacing: CGFloat = 0
-    var characterSpacing: CGFloat = 0
+    public internal(set) var wordSpacing: CGFloat = 0
+    public internal(set) var characterSpacing: CGFloat = 0
     var horizontalScaling: CGFloat = 1
     var textRise: CGFloat = 0
-    var font: PDFFont = PDFFont.init()
+    public var font: PDFFont = PDFFont.init()
     var fontSize: CGFloat = 0
 
-    init() {
+    public init() {
     }
 
-    convenience init(state: PDFRenderingState) {
+    public convenience init(state: PDFRenderingState) {
         self.init()
         lineMatrix = state.lineMatrix
         textMatrix = state.textMatrix
@@ -72,12 +72,12 @@ public class PDFRenderingState {
         }
     }
 
-    func sizeInDeviceSpace(ofText str:String, originalCharCodes oCharCodes:[PDFCharacterCode], horizontal: Bool = true) -> (deviceSpaceSize:CGSize, textMatrixTranslation:CGSize) {
+    public func sizeInDeviceSpace(forCharacters characters:[PDFFontFile.CharacterId], horizontal: Bool = true) -> (deviceSpaceSize:CGSize, textMatrixTranslation:CGSize) {
         assert(horizontal, "vertical writing not supported")
         var strSize = CGSize(width: 0, height: fontSize)
-        for (i,char) in str.utf16.enumerated() {
 
-            let charDisplacement = font.displacementInGlyphSpace(forChar: char, originalCharCode: oCharCodes[i])
+        for char in characters {
+            let charDisplacement = font.displacementInGlyphSpace(forChar: char)
             /*
              var chars = [char]
             print ("char \(String(utf16CodeUnits:&chars, count:1)) [\(char)] , displacement: \(charDisplacement)")
@@ -85,7 +85,7 @@ public class PDFRenderingState {
             strSize = CGSize(width: strSize.width
                     + fontSize * convertHorizontalGlyphSpaceToTextSpace(charDisplacement.x)
                     + characterSpacing
-                    + (char == 0x20 ? wordSpacing : 0),
+                    + (char == font.spaceCharId ? wordSpacing : 0),
 
                              height: max(strSize.height,
                     textRise
@@ -101,10 +101,10 @@ public class PDFRenderingState {
         return (deviceSpaceSize, textMatrixTranslation)
     }
 
-    func deviceSpaceFrameForText(_ str:String, originalCharCodes oCharCodes:[PDFCharacterCode],  horizontal: Bool = true) -> (deviceSpaceFrame:CGRect, textMatrixTranslation: CGSize) {
+    func deviceSpaceFrame(forCharacters chars:[PDFFontFile.CharacterId],  horizontal: Bool = true) -> (deviceSpaceFrame:CGRect, textMatrixTranslation: CGSize) {
         assert(horizontal, "vertical writing not supported")
         let trm = deviceSpaceMatrix
-        let (deviceSpaceSize, textMatrixTranslation) = sizeInDeviceSpace(ofText: str, originalCharCodes:oCharCodes)
+        let (deviceSpaceSize, textMatrixTranslation) = sizeInDeviceSpace(forCharacters:chars)
         let res = CGRect(x: trm.tx, y: trm.ty,
                       width: deviceSpaceSize.width,
                       height: deviceSpaceSize.height)

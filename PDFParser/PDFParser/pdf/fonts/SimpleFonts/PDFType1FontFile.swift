@@ -53,15 +53,12 @@ struct PDFType1FontFile {
         }
     }
 
-    func glyphWidthInThousandthOfEM(forChar char:unichar, originalCharCode oChar: PDFCharacterCode) -> CGFloat? {
-        return nil
-    }
-
     static func dataToText(_ data: Data) -> (asciiTextLength: Int, text: String) {
         // ASCII segment length (little endian)
         var text: String = ""
         var asciiTextLength: Int = 0
-        data.withUnsafeBytes { (bytes: UnsafePointer<UInt8>) -> Void in
+        data.withUnsafeBytes { (rawBytes: UnsafeRawBufferPointer) -> Void in
+            let bytes = rawBytes.bindMemory(to: UInt8.self)
             if (data.count > 0 && bytes[0] == 0x80)
             {
                 asciiTextLength = Int(bytes[2]) | Int(bytes[3]) << 8 | Int(bytes[4]) << 16 | Int(bytes[5]) << 24
@@ -77,12 +74,29 @@ struct PDFType1FontFile {
         }
         return (asciiTextLength, text)
     }
+
+    //MARK: - Lookup functions
+
+    func char(forGlyphname name: String) -> CharacterId? {
+        return names.first(where: {$1 == name})?.key
+    }
+
+    func glyphName(forChar char:CharacterId) -> String? {
+        return names[char]
+    }
 }
 
 extension PDFType1FontFile: PDFFontFile {
-    func glyphName(forChar originalCharCode:PDFCharacterCode) -> String? {
-        return names[Int(originalCharCode)]
+    func glyphWidthInThousandthOfEM(forChar char: CharacterId) -> CGFloat? {
+        return nil
     }
+    
+    func unicodeScalar(forChar char:CharacterId) -> Unicode.Scalar? {
+        guard let glyphName = glyphName(forChar:char),
+            let uchar = PDFAGL.unicodeForGlyphName[glyphName] else { return nil }
+        return Unicode.Scalar(uchar)
+    }
+
     func fontInfos() -> PDFFontFileInfos? {
         return nil
     }

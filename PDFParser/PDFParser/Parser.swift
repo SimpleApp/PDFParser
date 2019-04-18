@@ -9,7 +9,8 @@ import UIKit
 
 
 public protocol ParserDelegate {
-    func parser(p: Parser, didCompleteWithError error: Error?)
+    func parser(p: Parser, didParse page:Int, outOf nbPages:Int)
+    func parser(p: Parser, didCompleteWithError error: Error?, cgPDFDocument: CGPDFDocument?)
 }
 
 public class Parser {
@@ -35,7 +36,6 @@ public class Parser {
         self.delegate = delegate
         self.indexer = indexer
         self.log = log
-        renderingStateStack.append(PDFRenderingState())
     }
 
     //MARK: - Operators
@@ -100,11 +100,11 @@ public class Parser {
     //MARK: - Parsing
     public func parse() {
         guard let cgDoc = CGPDFDocument(documentURL as CFURL) else {
-            delegate.parser(p: self, didCompleteWithError: ParserError.invalidDocumentURL(url: (documentURL)))
+            delegate.parser(p: self, didCompleteWithError: ParserError.invalidDocumentURL(url: (documentURL)), cgPDFDocument: nil)
             return
         }
         guard let operatorTableRef = createOperatorTable() else {
-            delegate.parser(p: self, didCompleteWithError: ParserError.couldNotCreateOperatorTableRef)
+            delegate.parser(p: self, didCompleteWithError: ParserError.couldNotCreateOperatorTableRef, cgPDFDocument: nil)
             return
         }
 
@@ -113,9 +113,13 @@ public class Parser {
         for p in 1...cgDoc.numberOfPages {
             guard let page = cgDoc.page(at: p) else { continue }
             let rect = page.getBoxRect(.cropBox)
+            renderingStateStack.removeAll()
+            renderingStateStack.append(PDFRenderingState())
             indexer.beginNewPage(pageNumber: p, pageSize: rect.size)
             parsePage(page, operators: operatorTableRef, selfPtr:selfPointer)
+            delegate.parser(p: self, didParse: p, outOf: cgDoc.numberOfPages)
         }
+        delegate.parser(p: self, didCompleteWithError: nil, cgPDFDocument: cgDoc)
     }
 
     func parsePage(_ page: CGPDFPage, operators: CGPDFOperatorTableRef, selfPtr: UnsafeMutableRawPointer) {
@@ -283,14 +287,14 @@ public class Parser {
         guard let pdfString = pdfString else { return }
 
         let renderingState = parser.renderingState
-        let (str, originalCharCodes) = renderingState.font.string(from: pdfString)
+        let (str, characterIds) = renderingState.font.string(from: pdfString)
         parser.log( "didScanString \(str)")
 
-        let (deviceSpaceFrame, textMatrixTranslation) = renderingState.deviceSpaceFrameForText(str,originalCharCodes: originalCharCodes)
+        let (deviceSpaceFrame, textMatrixTranslation) = renderingState.deviceSpaceFrame(forCharacters:characterIds)
 
         parser.indexer.didScanTextBlock(
             TextBlock( chars: str,
-                       originalCharCodes: originalCharCodes,
+                       characterIds: characterIds,
                        renderingState: renderingState,
                        frame:deviceSpaceFrame))
         renderingState.translateTextMatrix(by: CGSize(width: textMatrixTranslation.width, height:0))

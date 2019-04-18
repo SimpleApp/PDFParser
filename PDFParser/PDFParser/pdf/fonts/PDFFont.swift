@@ -8,8 +8,7 @@
 import Foundation
 import CoreGraphics
 
-//TODO: understand a little better how mutli-bytes characters are handled, especially when comunicating with the fontfile (as some truetype cmap tables are supposed to handle 2-bytes character codes..)
-typealias PDFCharacterCode = UInt8
+public typealias PDFCharacterByte = UInt8
 
 public class PDFFont {
     enum Encoding {
@@ -48,71 +47,93 @@ public class PDFFont {
 
    
     var toUnicode = CMap()
-    var widths = [PDFCharacterCode:CGFloat]() // width of char using original character encoding.
-    var descriptor = PDFFontDescriptor.empty
+    public var descriptor = PDFFontDescriptor.empty
     var ligatures = [String:unichar]()
     let minY: CGFloat = 0
     let maxY: CGFloat = 0
-    var widthsRange = NSMakeRange(0, 0)
-    var baseFontName = ""
-    var encoding = Encoding.unknown
-    var spaceCharEncoded: PDFCharacterCode?
+    public var baseFontName = ""
+    var encoding: Encoding? = nil
+    public var spaceCharId: PDFFontFile.CharacterId?
+    var currentSystemIsLittleEndian: Bool = false
 
     init() {
     }
 
-    //MARK: - Public api
-    /* Given a PDF string, returns a Unicode string */
-
+    //MARK: - Constructor
     init?(pdfDictionary: CGPDFDictionaryRef?) {
+        currentSystemIsLittleEndian = Int(littleEndian: 1) == 1
+
         guard let pdfDictionary = pdfDictionary else { return }
-        // Populate the glyph widths store
-        setWidths(fontDictionary: pdfDictionary)
 
-        // Initialize the font descriptor
-        setFontDescriptor(fontDictionary: pdfDictionary)
-
-        // Parse ToUnicode map
-        setToUnicode(fontDictionary: pdfDictionary)
+        //Parsing all possible entries. When an entry key depends on the font type, it is provided as a parameter (eg: for widths)
+        parseFontDescriptor(fontDictionary: pdfDictionary)
+        parseToUnicode(fontDictionary: pdfDictionary)
+        parseEncoding(fontDictionary: pdfDictionary)
 
         // Set the font's base font
+        parseBaseFontName(fontDictionary: pdfDictionary)
+
+        // TODO: parse \Differences
+
+
+        guessSpaceCharacterId()
+
+    }
+
+    //MARK: - Public functions
+    /*** Text parsing
+     */
+    func string(from pdfString:CGPDFStringRef) -> (str:String, characterIds:[PDFFontFile.CharacterId])  {
+        let charIds = self.pdfStringToCharacterIds(pdfString)
+        let scalars: [Unicode.Scalar] = charIds.map{ characterIdToUnicode($0) ?? Unicode.Scalar(0xFFFD)! }
+        let str = String(String.UnicodeScalarView(scalars))
+        return (str, charIds)
+
+    }
+
+    /*** Metrics
+    **/
+    func displacementInGlyphSpace(forChar char:PDFFontFile.CharacterId) -> CGPoint {
+        assertionFailure("Override in subclasses")
+        return .zero
+    }
+
+
+    //MARK: - Text decoding functions
+    func pdfStringToCharacterIds(_ pdfString:CGPDFStringRef) -> [PDFFontFile.CharacterId] {
+        assertionFailure("Override in subclasses")
+        return []
+    }
+
+    func characterIdToUnicode(_ char:PDFFontFile.CharacterId) -> Unicode.Scalar? {
+        assertionFailure("Override in subclasses")
+        return nil // Replacement character
+    }
+
+
+
+    //MARK: per property
+
+    func toUnicodeCharMapLookup(_ char: PDFFontFile.CharacterId) -> Unicode.Scalar? {
+        return self.toUnicode.unicodeCharacter(forChar: char)
+    }
+
+    func fontFileCharMapLookup(_ char: PDFFontFile.CharacterId) -> Unicode.Scalar? {
+        return descriptor.fontFile?.unicodeScalar(forChar: char)
+    }
+
+
+    //MARK: - PDF Font dictionary parsing functions
+    func parseBaseFontName(fontDictionary: CGPDFDictionaryRef) {
         var pdfFontName : UnsafePointer<Int8>? = nil
-        if  CGPDFDictionaryGetName(pdfDictionary, "BaseFont", &pdfFontName),
+        if  CGPDFDictionaryGetName(fontDictionary, "BaseFont", &pdfFontName),
             let fontName = String.decodePDFInt8CString(pdfFontName)
         {
             baseFontName = fontName
         }
     }
 
-    func string(from pdfString:CGPDFStringRef) -> (str:String, originalCharCodes:[PDFCharacterCode])  {
-
-        guard let characterCodes = CGPDFStringGetBytePtr(pdfString) else {
-            return ("", [])
-        }
-
-        let characterCodeCount = CGPDFStringGetLength(pdfString)
-
-        var str: String = ""
-        var originalCharCodes = [PDFCharacterCode]()
-        for i in 0 ..< characterCodeCount {
-            let charCode: PDFCharacterCode = characterCodes[i]
-            originalCharCodes.append(charCode)
-            if var value = toUnicode.unicodeCharacter(forPDFCharacter: charCode) {
-                str.append(String(utf16CodeUnits: &value, count: 1))
-            } else if let glyphName = descriptor.fontFile?.glyphName(forChar:charCode),
-                var value = PDFAGL.unicodeForGlyphName[glyphName] {
-                str.append(String(utf16CodeUnits: &value, count: 1) )
-            } else {
-                str.append(String(bytes: [charCode], encoding: encoding.toNative()) ?? "\u{FFFD}")
-            }
-        }
-        return (str, originalCharCodes)
-    }
-
-
-
-    func setEncoding(fontDictionary: CGPDFDictionaryRef?) {
-        guard let fontDictionary = fontDictionary else { return }
+    func parseEncoding(fontDictionary: CGPDFDictionaryRef) {
         var pdfEncodingName: UnsafePointer<Int8>? = nil
         if !CGPDFDictionaryGetName(fontDictionary, "Encoding", &pdfEncodingName)
         {
@@ -122,7 +143,6 @@ public class PDFFont {
                 let encodingDictNonNil = encodingDict {
                 CGPDFDictionaryGetName(encodingDictNonNil,"BaseEncoding", &pdfEncodingName)
             }
-            // TODO: Also get differences from font encoding dictionary
         }
 
         if let encodingName = String.decodePDFInt8CString(pdfEncodingName) {
@@ -140,14 +160,24 @@ public class PDFFont {
             encoding = .unknown
         }
 
-        spaceCharEncoded = PDFCharacterCode(" ".cString(using: encoding.toNative())?.first ?? 0)
+
     }
 
-    func setWidths(fontDictionary: CGPDFDictionaryRef) {
-        //Sublcass should override this.
+    func guessSpaceCharacterId() {
+        //from encoding
+        if
+            let encoding = encoding,
+            let spaceCode = " ".data(using: encoding.toNative())?[0],
+            encoding != .unknown {
+            spaceCharId = Int(spaceCode)
+        } else if let toUnicodeLookup = self.toUnicode.characterForUnicode(Unicode.Scalar(0x20)) {
+            spaceCharId = toUnicodeLookup
+        }
     }
 
-    func setFontDescriptor(fontDictionary: CGPDFDictionaryRef) {
+    
+
+    func parseFontDescriptor(fontDictionary: CGPDFDictionaryRef) {
         var descriptor: CGPDFDictionaryRef? = nil
         guard
             CGPDFDictionaryGetDictionary(fontDictionary, "FontDescriptor", &descriptor),
@@ -155,7 +185,7 @@ public class PDFFont {
         self.descriptor = PDFFontDescriptor(pdfDictionary:descriptorNonNil)
     }
 
-    func setToUnicode(fontDictionary: CGPDFDictionaryRef){
+    func parseToUnicode(fontDictionary: CGPDFDictionaryRef){
         var stream: CGPDFStreamRef? = nil
         guard
             CGPDFDictionaryGetStream(fontDictionary, "ToUnicode", &stream),
@@ -164,11 +194,6 @@ public class PDFFont {
     }
 
 
-    func displacementInGlyphSpace(forChar char: unichar, originalCharCode oChar:PDFCharacterCode) -> CGPoint {
-        return CGPoint(x: widths[oChar] ??
-            (descriptor.missingWidth > 0 ? descriptor.missingWidth : descriptor.fontFile?.glyphWidthInThousandthOfEM(forChar:char, originalCharCode:oChar)
-                ?? 0)  , y: 0)
-    }
 
     //scale by a thousandth
     static let defaultFontMatrix = CGAffineTransform(a:  0.001 ,b:  0,

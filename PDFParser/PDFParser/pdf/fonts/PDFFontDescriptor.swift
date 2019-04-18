@@ -8,7 +8,7 @@
 import Foundation
 import CoreGraphics
 
-struct PDFFontDescriptor {
+public struct PDFFontDescriptor {
     var descent: CGFloat = 0
     var ascent: CGFloat = 0
     var leading: CGFloat = 0
@@ -22,8 +22,8 @@ struct PDFFontDescriptor {
     var italicAngle: CGFloat = 0
     var bounds: CGRect = .zero
     var flags: PDFFont.Flag = []
-    var fontName: String = ""
-    var fontFile: PDFFontFile? = nil
+    public var fontName: String = ""
+    public var fontFile: PDFFontFile? = nil
 
     init() {
     }
