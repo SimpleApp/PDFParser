@@ -83,24 +83,28 @@ public class SimpleDocumentIndexer {
 
         //Left to right reading
         func wordCoalesced() -> LineTextBlock {
-            var res = [TextBlock]()
-            var tmpBlockOrNil: TextBlock? = self.blocks.first
+            var resBlocks = [TextBlock]()
             var iNext = 1
+            var sortedBlocks = blocks.sorted(by: {
+                $0.frame.minX < $1.frame.minX
+            })
+            var tmpBlockOrNil: TextBlock? = sortedBlocks.first
             while let tmpBlock = tmpBlockOrNil,
-                iNext < blocks.count {
-                    let nextBlock = blocks[iNext]
+                iNext < sortedBlocks.count {
+                    let nextBlock = sortedBlocks[iNext]
                     if let coalescedBlock = LineTextBlock.coalesceWords(previous: tmpBlock, with: nextBlock) {
                         tmpBlockOrNil = coalescedBlock
                     } else {
-                        res.append(tmpBlock)
+                        resBlocks.append(tmpBlock)
                         tmpBlockOrNil = nextBlock
                     }
                     iNext += 1
             }
             if let tmpBlock = tmpBlockOrNil {
-                res.append(tmpBlock)
+                resBlocks.append(tmpBlock)
             }
-            return LineTextBlock(blocks: res)
+
+            return LineTextBlock(blocks: resBlocks)
         }
 
         static func coalesceWords(previous: TextBlock, with next: TextBlock) -> TextBlock? {
@@ -111,7 +115,8 @@ public class SimpleDocumentIndexer {
                     previous.chars.canFormWord(with: next.chars) &&
                     previous.renderingState.deviceSpaceFontSize == next.renderingState.deviceSpaceFontSize &&
                     blockSpacing < spaceWidth {
-                print ("coalesce \(previous.chars) [\(previous.frame)] with \(next.chars) [\(next.frame)]\n")
+
+                //print ("coalesce \(previous.chars) [\(previous.frame)] with \(next.chars) [\(next.frame)]\n")
 
                 var res = previous
                 res.chars.append(next.chars)
@@ -126,7 +131,7 @@ public class SimpleDocumentIndexer {
 
 
         static func widthOfSpaceInDeviceSpace(renderingState: PDFRenderingState ) -> CGFloat {
-            return renderingState.sizeInDeviceSpace(forCharacters: [renderingState.font.spaceCharId ?? 0x20] ).deviceSpaceSize.width
+            return renderingState.sizeInDeviceSpace(forCharacters: [renderingState.font.spaceCharId ?? 0] ).deviceSpaceSize.width
         }
 
 
@@ -169,7 +174,8 @@ extension String {
         return unicodeScalars.first?.isIn(set) ?? false
     }
     public func canFormWord(with str2: String) -> Bool {
-        return endsWithCharInSet(set: .letters) && str2.beginsWithCharInSet(set: .letters)
+        let res = endsWithCharInSet(set: .letters) && str2.beginsWithCharInSet(set: .letters)
+        return res
     }
 }
 

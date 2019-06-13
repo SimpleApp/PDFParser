@@ -45,7 +45,8 @@ public class PDFFont {
         static let forceBold    = 1 << 18
     }
 
-   
+
+    var differences = Differences()
     var toUnicode = CMap()
     public var descriptor = PDFFontDescriptor.empty
     var ligatures = [String:unichar]()
@@ -73,8 +74,6 @@ public class PDFFont {
         // Set the font's base font
         parseBaseFontName(fontDictionary: pdfDictionary)
 
-        // TODO: parse \Differences
-
 
         guessSpaceCharacterId()
 
@@ -85,7 +84,7 @@ public class PDFFont {
      */
     func string(from pdfString:CGPDFStringRef) -> (str:String, characterIds:[PDFFontFile.CharacterId])  {
         let charIds = self.pdfStringToCharacterIds(pdfString)
-        let scalars: [Unicode.Scalar] = charIds.map{ characterIdToUnicode($0) ?? Unicode.Scalar(0xFFFD)! }
+        let scalars: [Unicode.Scalar] = charIds.map{ characterIdToUnicode($0) ?? Unicode.Scalar(0x003F)! }
         let str = String(String.UnicodeScalarView(scalars))
         return (str, charIds)
 
@@ -142,12 +141,19 @@ public class PDFFont {
             if CGPDFDictionaryGetDictionary(fontDictionary, "Encoding", &encodingDict),
                 let encodingDictNonNil = encodingDict {
                 CGPDFDictionaryGetName(encodingDictNonNil,"BaseEncoding", &pdfEncodingName)
+
+                // TODO: parse \Differences
+                parseDifferences(encodingDictionary: encodingDictNonNil)
+
             }
         }
 
         if let encodingName = String.decodePDFInt8CString(pdfEncodingName) {
             setEncoding(name:encodingName)
         }
+
+
+
     }
 
     func setEncoding(name: String?) {
@@ -193,6 +199,15 @@ public class PDFFont {
         self.toUnicode = CMap(stream:streamNonNil)
     }
 
+    func parseDifferences(encodingDictionary: CGPDFDictionaryRef) {
+        var arrayRefOrNil: CGPDFArrayRef? = nil
+        guard CGPDFDictionaryGetArray(encodingDictionary, "Differences", &arrayRefOrNil) else { return }
+
+        if let arrayRef = arrayRefOrNil {
+            self.differences = Differences(arrayRef: arrayRef)
+        }
+
+    }
 
 
     //scale by a thousandth

@@ -46,7 +46,10 @@ struct PDFType1FontFile {
                 var nsName: NSString?
                 scanner.scanInt(&code)
                 scanner.scanUpToCharacters(from: .whitespacesAndNewlines, into: &nsName)
-                if let name = nsName as String? {
+                if var name = nsName as String? {
+                    if name.hasPrefix("/") || name.hasPrefix("\\") {
+                        name = String(name.dropFirst())
+                    }
                     names[code] = name
                 }
             }
@@ -74,16 +77,6 @@ struct PDFType1FontFile {
         }
         return (asciiTextLength, text)
     }
-
-    //MARK: - Lookup functions
-
-    func char(forGlyphname name: String) -> CharacterId? {
-        return names.first(where: {$1 == name})?.key
-    }
-
-    func glyphName(forChar char:CharacterId) -> String? {
-        return names[char]
-    }
 }
 
 extension PDFType1FontFile: PDFFontFile {
@@ -97,6 +90,9 @@ extension PDFType1FontFile: PDFFontFile {
         return Unicode.Scalar(uchar)
     }
 
+    func glyphName(forChar char:CharacterId) -> String? {
+        return names[char]
+    }
     func fontInfos() -> PDFFontFileInfos? {
         return nil
     }

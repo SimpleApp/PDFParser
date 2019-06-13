@@ -18,6 +18,8 @@
 		3228B20720FF6BE7007CA917 /* PDFType1FontFile.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3228B20520FF6BE7007CA917 /* PDFType1FontFile.swift */; };
 		3228B20920FF6C31007CA917 /* TrueTypeFontFile.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3228B20820FF6C31007CA917 /* TrueTypeFontFile.swift */; };
 		3228B20A20FF6C31007CA917 /* TrueTypeFontFile.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3228B20820FF6C31007CA917 /* TrueTypeFontFile.swift */; };
+		322EEFF622B259E100B721D9 /* Differences.swift in Sources */ = {isa = PBXBuildFile; fileRef = 322EEFF522B259E100B721D9 /* Differences.swift */; };
+		322EEFF722B259E500B721D9 /* Differences.swift in Sources */ = {isa = PBXBuildFile; fileRef = 322EEFF522B259E100B721D9 /* Differences.swift */; };
 		3235D24222678ABC007B543F /* CIDFontWidths.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3235D24122678ABC007B543F /* CIDFontWidths.swift */; };
 		3235D24322678AC2007B543F /* CIDFontWidths.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3235D24122678ABC007B543F /* CIDFontWidths.swift */; };
 		324FA55021076F3D00AECA0E /* TextAttributes.swift in Sources */ = {isa = PBXBuildFile; fileRef = 324FA54F21076F3D00AECA0E /* TextAttributes.swift */; };
@@ -79,6 +81,7 @@
 		3228B1F820F63F99007CA917 /* SimpleDocumentIndexer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SimpleDocumentIndexer.swift; sourceTree = "<group>"; };
 		3228B20520FF6BE7007CA917 /* PDFType1FontFile.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PDFType1FontFile.swift; sourceTree = "<group>"; };
 		3228B20820FF6C31007CA917 /* TrueTypeFontFile.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrueTypeFontFile.swift; sourceTree = "<group>"; };
+		322EEFF522B259E100B721D9 /* Differences.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Differences.swift; sourceTree = "<group>"; };
 		3235D24122678ABC007B543F /* CIDFontWidths.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CIDFontWidths.swift; sourceTree = "<group>"; };
 		324FA54F21076F3D00AECA0E /* TextAttributes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextAttributes.swift; sourceTree = "<group>"; };
 		324FA5532107B09F00AECA0E /* String.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = String.swift; sourceTree = "<group>"; };
@@ -136,6 +139,7 @@
 		3235D24022678A59007B543F /* Container Types */ = {
 			isa = PBXGroup;
 			children = (
+				322EEFF522B259E100B721D9 /* Differences.swift */,
 				32934A7420E39384009CB6D0 /* CMap.swift */,
 				3235D24122678ABC007B543F /* CIDFontWidths.swift */,
 			);
@@ -400,6 +404,7 @@
 				32A39B3920EFAA1F00A295AB /* PDFType3Font.swift in Sources */,
 				3228B1F920F63F99007CA917 /* SimpleDocumentIndexer.swift in Sources */,
 				3228B20620FF6BE7007CA917 /* PDFType1FontFile.swift in Sources */,
+				322EEFF622B259E100B721D9 /* Differences.swift in Sources */,
 				32A39B2A20EFA9E000A295AB /* PDFCIDType2Font.swift in Sources */,
 				32D4BC54210239D1006E344D /* TrueTypeCMAPSubTables.swift in Sources */,
 				320F04FD20F3B5BE008A9EF5 /* PDFFontFile.swift in Sources */,
@@ -424,6 +429,7 @@
 				32A39B2820EFA9D900A295AB /* PDFCIDType0Font.swift in Sources */,
 				32A39B2B20EFA9E000A295AB /* PDFCIDType2Font.swift in Sources */,
 				3228B1FA20F63F99007CA917 /* SimpleDocumentIndexer.swift in Sources */,
+				322EEFF722B259E500B721D9 /* Differences.swift in Sources */,
 				32934A5D20E38ED9009CB6D0 /* Parser.swift in Sources */,
 				32934A7620E39384009CB6D0 /* CMap.swift in Sources */,
 				32A39B3420EFAA0B00A295AB /* PDFType1Font.swift in Sources */,
