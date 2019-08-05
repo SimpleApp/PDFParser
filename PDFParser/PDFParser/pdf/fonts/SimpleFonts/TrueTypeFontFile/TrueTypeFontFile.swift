@@ -309,7 +309,7 @@ struct TrueTypeFontFile {
         case .short(let offsets):
             for glId in  0 ..< maxpTable.numGlyphs {
                 let offset = offsets[Int(glId)]
-                _ = r.seek(pos: Int(glyfTableIndex.offset) + Int(offset * 2))
+                _ = r.seek(pos: Int(glyfTableIndex.offset) + Int(offset) * 2)
                 items.append(TTGLYFTable.GlyfTableItem(
                     numberOfContours: r.get(),
                     xMin: r.get(),
