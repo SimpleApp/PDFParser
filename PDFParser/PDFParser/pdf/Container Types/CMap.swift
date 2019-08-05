@@ -34,7 +34,7 @@ public class CMap {
                 context.paramStack.append(value)
                 return;
             }
-            cmap.characterMappings[context.paramStack[0]] = unichar(value)
+            cmap.characterMappings[context.paramStack[0]] = unichar(exactly:value)
             context.paramStack.removeAll()
         }
 
